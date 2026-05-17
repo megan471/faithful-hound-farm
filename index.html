@@ -619,124 +619,51 @@ async function deleteForumPost(pid){
   render();
 }
 
-function rulesTab(){
-  return `<div>
-    <p style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:4px">Farm Rules & Labour Tips</p>
-    <p style="font-size:12px;color:#64748b;margin-bottom:16px">Standard tipping guidelines for farm labour over weekends</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
-      <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:1rem">
-        <p style="font-size:12px;font-weight:600;color:#1e40af;margin-bottom:2px;text-transform:uppercase;letter-spacing:0.5px">1–8 People</p>
-        <p style="font-size:11px;color:#3b82f6;margin-bottom:12px">Smaller group weekend</p>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:6px;padding:8px 10px"><span style="font-size:13px;font-weight:500;color:#1e293b">Thomas</span><span style="font-size:14px;font-weight:700;color:#059669">R 300</span></div>
-          <div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:6px;padding:8px 10px"><span style="font-size:13px;font-weight:500;color:#1e293b">Simon</span><span style="font-size:14px;font-weight:700;color:#059669">R 300</span></div>
-          <div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:6px;padding:8px 10px"><span style="font-size:13px;font-weight:500;color:#1e293b">Sara</span><span style="font-size:14px;font-weight:700;color:#059669">R 400</span></div>
-        </div>
-        <div style="margin-top:10px;padding-top:10px;border-top:0.5px solid #BFDBFE;display:flex;justify-content:space-between"><span style="font-size:12px;color:#64748b">Total tips</span><span style="font-size:13px;font-weight:700;color:#1e40af">R 1 000</span></div>
-      </div>
-      <div style="background:#FEF3C7;border:1px solid #FDE68A;border-radius:10px;padding:1rem">
-        <p style="font-size:12px;font-weight:600;color:#92400e;margin-bottom:2px;text-transform:uppercase;letter-spacing:0.5px">8+ People</p>
-        <p style="font-size:11px;color:#d97706;margin-bottom:12px">Larger group weekend</p>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:6px;padding:8px 10px"><span style="font-size:13px;font-weight:500;color:#1e293b">Thomas</span><span style="font-size:14px;font-weight:700;color:#059669">R 300</span></div>
-          <div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:6px;padding:8px 10px"><span style="font-size:13px;font-weight:500;color:#1e293b">Simon</span><span style="font-size:14px;font-weight:700;color:#059669">R 300</span></div>
-          <div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:6px;padding:8px 10px"><span style="font-size:13px;font-weight:500;color:#1e293b">Sara</span><span style="font-size:14px;font-weight:700;color:#059669">R 300</span></div>
-          <div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:6px;padding:8px 10px"><span style="font-size:13px;font-weight:500;color:#1e293b">Sinah</span><span style="font-size:14px;font-weight:700;color:#059669">R 300</span></div>
-        </div>
-        <div style="margin-top:10px;padding-top:10px;border-top:0.5px solid #FDE68A;display:flex;justify-content:space-between"><span style="font-size:12px;color:#64748b">Total tips</span><span style="font-size:13px;font-weight:700;color:#92400e">R 1 200</span></div>
-      </div>
-    </div>
-    <div style="background:#F0FDF4;border:1px solid #86EFAC;border-radius:10px;padding:1rem">
-      <p style="font-size:12px;font-weight:600;color:#166534;margin-bottom:6px">💡 How to log tips as an expense</p>
-      <p style="font-size:13px;color:#15803d;line-height:1.6">After your weekend, go to your weekend in the <strong>All weekends</strong> tab, click the 💰 button, select category <strong>"Labour"</strong>, enter the total tip amount, and log it. Steve will see it under Expenses and record it against the farm accounts.</p>
-    </div>
-  </div>`;
+  function rulesTab(){
+  return '<div>'+
+    '<p style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:4px">Farm Rules & Labour Tips</p>'+
+    '<p style="font-size:12px;color:#64748b;margin-bottom:16px">Standard tipping guidelines for farm labour over weekends</p>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">'+
+      '<div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:1rem">'+
+        '<p style="font-size:12px;font-weight:600;color:#1e40af;margin-bottom:2px;text-transform:uppercase">1 to 8 People</p>'+
+        '<p style="font-size:11px;color:#3b82f6;margin-bottom:12px">Smaller group weekend</p>'+
+        '<div style="display:flex;flex-direction:column;gap:8px">'+
+          '<div style="display:flex;justify-content:space-between;background:#fff;border-radius:6px;padding:8px 10px"><span style="font-size:13px;font-weight:500">Thomas</span><span style="font-size:14px;font-weight:700;color:#059669">R 300</span></div>'+
+          '<div style="display:flex;justify-content:space-between;background:#fff;border-radius:6px;padding:8px 10px"><span style="font-size:13px;font-weight:500">Simon</span><span style="font-size:14px;font-weight:700;color:#059669">R 300</span></div>'+
+          '<div style="display:flex;justify-content:space-between;background:#fff;border-radius:6px;padding:8px 10px"><span style="font-size:13px;font-weight:500">Sara</span><span style="font-size:14px;font-weight:700;color:#059669">R 400</span></div>'+
+        '</div>'+
+        '<div style="margin-top:10px;padding-top:10px;border-top:0.5px solid #BFDBFE;display:flex;justify-content:space-between"><span style="font-size:12px;color:#64748b">Total</span><span style="font-size:13px;font-weight:700;color:#1e40af">R 1 000</span></div>'+
+      '</div>'+
+      '<div style="background:#FEF3C7;border:1px solid #FDE68A;border-radius:10px;padding:1rem">'+
+        '<p style="font-size:12px;font-weight:600;color:#92400e;margin-bottom:2px;text-transform:uppercase">8+ People</p>'+
+        '<p style="font-size:11px;color:#d97706;margin-bottom:12px">Larger group weekend</p>'+
+        '<div style="display:flex;flex-direction:column;gap:8px">'+
+          '<div style="display:flex;justify-content:space-between;background:#fff;border-radius:6px;padding:8px 10px"><span style="font-size:13px;font-weight:500">Thomas</span><span style="font-size:14px;font-weight:700;color:#059669">R 300</span></div>'+
+          '<div style="display:flex;justify-content:space-between;background:#fff;border-radius:6px;padding:8px 10px"><span style="font-size:13px;font-weight:500">Simon</span><span style="font-size:14px;font-weight:700;color:#059669">R 300</span></div>'+
+          '<div style="display:flex;justify-content:space-between;background:#fff;border-radius:6px;padding:8px 10px"><span style="font-size:13px;font-weight:500">Sara</span><span style="font-size:14px;font-weight:700;color:#059669">R 300</span></div>'+
+          '<div style="display:flex;justify-content:space-between;background:#fff;border-radius:6px;padding:8px 10px"><span style="font-size:13px;font-weight:500">Sinah</span><span style="font-size:14px;font-weight:700;color:#059669">R 300</span></div>'+
+        '</div>'+
+        '<div style="margin-top:10px;padding-top:10px;border-top:0.5px solid #FDE68A;display:flex;justify-content:space-between"><span style="font-size:12px;color:#64748b">Total</span><span style="font-size:13px;font-weight:700;color:#92400e">R 1 200</span></div>'+
+      '</div>'+
+    '</div>'+
+    '<div style="background:#F0FDF4;border:1px solid #86EFAC;border-radius:10px;padding:1rem;margin-bottom:16px">'+
+      '<p style="font-size:12px;font-weight:600;color:#166534;margin-bottom:6px">How to log tips as an expense</p>'+
+      '<p style="font-size:13px;color:#15803d;line-height:1.6">After your weekend, click the 💰 button on your weekend, select Labour, enter the total tip amount and log it. Steve will record it against the farm accounts.</p>'+
+    '</div>'+
+    '<p style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:10px">📶 WiFi</p>'+
+    '<div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:1rem">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:6px;padding:10px 12px;margin-bottom:8px">'+
+        '<span style="font-size:13px;color:#334155">Network</span>'+
+        '<span style="font-size:13px;font-weight:600;color:#1e293b">Vodacom</span>'+
+      '</div>'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:6px;padding:10px 12px;margin-bottom:8px">'+
+        '<span style="font-size:13px;color:#334155">Type</span>'+
+        '<span style="font-size:13px;font-weight:600;color:#1e293b">Top up SIM card</span>'+
+      '</div>'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:6px;padding:10px 12px">'+
+        '<span style="font-size:13px;color:#334155">Number to top up</span>'+
+        '<a href="tel:0716036175" style="font-size:14px;font-weight:700;color:#1d4ed8;text-decoration:none">071 603 6175</a>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
 }
-
-function expensesTab(allExp){
-  const filtered=expFilter==="all"?allExp:allExp.filter(e=>e.status===expFilter);
-  const total=filtered.reduce((s,e)=>s+e.amount,0);
-  const pendingTotal=allExp.filter(e=>e.status==="pending").reduce((s,e)=>s+e.amount,0);
-  const filterBtns=["pending","recorded","all"].map(f=>`<button onclick="expFilter='${f}';render()" style="font-size:12px;padding:4px 10px;border-radius:20px;background:${expFilter===f?"#1e293b":"#f8fafc"};color:${expFilter===f?"#fff":"#64748b"};border-color:${expFilter===f?"#1e293b":"#cbd5e1"}">${f.charAt(0).toUpperCase()+f.slice(1)}</button>`).join("");
-  const rows=filtered.length===0
-    ?`<div class="empty">No ${expFilter} expenses found.</div>`
-    :[...filtered].sort((a,b)=>b.id-a.id).map(e=>{
-        const sub=OWNERS.find(o=>o.id===e.submittedBy);
-        const canMark=currentUser===ADMIN_ID&&e.status==="pending";
-        const canDel=e.submittedBy===currentUser||currentUser===ADMIN_ID;
-        return `<div class="card" style="border-left:3px solid ${sub?.color||"#888"};background:${e.status==="recorded"?"#f0fdf4":"#fff"}">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
-            <div style="display:flex;align-items:center;gap:6px">
-              ${avatar(sub?.name||"?",sub?.color||"#888",24)}
-              <span style="font-size:13px;font-weight:600;color:#1e293b">${sub?.name}</span>
-              <span class="badge" style="background:#f1f5f9;color:#64748b">${e.category}</span>
-            </div>
-            <span style="font-size:15px;font-weight:700;color:#1e293b">R ${e.amount.toFixed(2)}</span>
-          </div>
-          <p style="font-size:13px;color:#334155;margin-bottom:4px">${e.description}</p>
-          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
-            <div>
-              <span style="font-size:11px;color:#94a3b8">${fmt(e.weekend.date)} · ${e.date}</span>
-              <span style="margin-left:8px;font-size:11px;font-weight:500;color:${e.status==="recorded"?"#166534":"#92400e"}">${e.status==="recorded"?"✓ Recorded":"⏳ Pending"}</span>
-            </div>
-            <div style="display:flex;gap:6px">
-              ${canMark?`<button onclick="markExpense('${e.weekend.id}',${e.id})" style="font-size:11px;padding:3px 8px;background:#059669;color:#fff;border:none;border-radius:4px">Mark recorded</button>`:""}
-              ${canDel?`<button onclick="deleteExpense('${e.weekend.id}',${e.id})" style="font-size:11px;padding:3px 8px;color:#dc2626;border-color:#fca5a5;background:#fff1f2;border-radius:4px">Delete</button>`:""}
-            </div>
-          </div>
-        </div>`;
-      }).join("");
-  return `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
-    <div>
-      <p style="font-size:14px;font-weight:600;color:#1e293b">Farm expense claims</p>
-      <p style="font-size:12px;color:#64748b;margin-top:2px">All expenses submitted by shareholders</p>
-    </div>
-    <div style="display:flex;gap:6px">${filterBtns}</div>
-  </div>
-  <div class="summary-grid">
-    <div class="summary-card" style="background:#fffbeb;border:1px solid #fcd34d"><p style="font-size:11px;color:#92400e">Pending claims</p><p style="font-size:20px;font-weight:600;color:#92400e;margin-top:4px">R ${pendingTotal.toFixed(2)}</p></div>
-    <div class="summary-card" style="background:#f0fdf4;border:1px solid #86efac"><p style="font-size:11px;color:#166534">Showing total</p><p style="font-size:20px;font-weight:600;color:#166534;margin-top:4px">R ${total.toFixed(2)}</p></div>
-  </div>
-  ${rows}`;
-}
-
-function render(){
-  if(showCover){renderCover();return;}
-  const availList=ALL_WEEKENDS.filter(w=>getS(w.id).available&&w.date>=today);
-  const mineList=currentUser?ALL_WEEKENDS.filter(w=>effOwner(w.id)===currentUser&&w.date>=today):[];
-  const allExp=ALL_WEEKENDS.flatMap(w=>(getS(w.id).expenses||[]).map(e=>({...e,weekend:w})));
-  const pendingExpCount=allExp.filter(e=>e.status==="pending").length;
-  const forumPosts=STATE["__forum__"]||[];
-  const filteredList=ALL_WEEKENDS.filter(w=>{
-    if(w.date<today)return false;
-    if(filterOwner!=="all"&&effOwner(w.id)!==filterOwner)return false;
-    if(filterYear!=="all"&&!w.date.startsWith(filterYear))return false;
-    return true;
-  });
-  const ownerObj=OWNERS.find(o=>o.id===currentUser);
-  const pills=OWNERS.map(o=>`<button class="pill" onclick="handlePillClick('${o.id}')" style="background:${currentUser===o.id?o.color:"transparent"};color:${currentUser===o.id?"#fff":"#64748b"};border-color:${currentUser===o.id?o.color:"#cbd5e1"}">${o.name.split(" ")[0]}</button>`).join("");
-  const userBar=currentUser?`<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">${avatar(ownerObj.name,ownerObj.color,30)}<span style="font-size:13px;font-weight:600">${ownerObj.name}</span>${currentUser===ADMIN_ID?`<button onclick="adminModal()" style="font-size:12px;padding:3px 8px;background:#fef3c7;color:#92400e;border:0.5px solid #fcd34d">⚙ Admin</button>`:""}<button onclick="currentUser=null;showCover=true;renderCover()" style="font-size:12px;padding:3px 8px">Sign out</button></div>`:"";
-  function tabBtn(id,label){return`<button class="tab${currentTab===id?" active":""}" onclick="currentTab='${id}';render()">${label}</button>`;}
-  let tabContent="";
-  if(currentTab==="all"){
-    const yearOpts=["2025","2026","2027","2028","2029","2030"].map(y=>`<option value="${y}"${filterYear===y?" selected":""}>${y}</option>`).join("");
-    const ownerOpts=OWNERS.map(o=>`<option value="${o.id}"${filterOwner===o.id?" selected":""}>${o.name}</option>`).join("");
-    tabContent=`<div class="filters"><select onchange="filterOwner=this.value;render()"><option value="all">All owners</option>${ownerOpts}</select><select onchange="filterYear=this.value;render()"><option value="all">All years</option>${yearOpts}</select><span style="font-size:12px;color:#64748b">${filteredList.length} weekends</span></div>${filteredList.map(w=>weekendCard(w)).join("")}`;
-  } else if(currentTab==="mine"){
-    tabContent=currentUser?mineList.length?mineList.map(w=>weekendCard(w)).join(""):emptyMsg("No upcoming weekends assigned to you."):emptyMsg("Tap your name above to sign in.");
-  } else if(currentTab==="avail"){
-    tabContent=availList.length?`<p style="font-size:13px;color:#64748b;margin-bottom:12px">Released weekends — sign in and claim one before someone else does!</p>`+availList.map(w=>weekendCard(w,true)).join(""):emptyMsg("No weekends available right now. Check back soon!");
-  } else if(currentTab==="expenses"){
-    tabContent=expensesTab(allExp);
-  } else if(currentTab==="forum"){
-    tabContent=forumTab(forumPosts);
-  } else if(currentTab==="rules"){
-    tabContent=rulesTab();
-  }
-  document.getElementById("app").innerHTML=`<div class="header"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px;flex-wrap:wrap"><div><h1>🎣 The Faithful Hound Trout Farm</h1><div class="header-sub"><span>Weekend allocation · 2025–2030</span><span class="live ${syncing?"saving":"ok"}">${syncing?"⟳ Saving...":lastSync?"✓ Live":""}</span></div></div>${userBar}</div><div class="owner-pills">${pills}</div><div class="tabs">${tabBtn("all","All weekends")}${tabBtn("mine","My weekends"+(currentUser?` (${mineList.length})` :""))}${tabBtn("avail","Available"+(availList.length>0?` · ${availList.length}`:""))}${tabBtn("expenses","Expenses"+(pendingExpCount>0?` · ${pendingExpCount}`:""))}${tabBtn("forum","Forum")}${tabBtn("rules","Rules")}</div></div><div class="content">${tabContent}</div>`;
-}
-
-renderCover();
-</script>
-</body>
-</html>
