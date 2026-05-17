@@ -204,8 +204,9 @@ function renderCover(){
   document.getElementById("app").innerHTML=`
     <div style="min-height:100vh;background:#0f2027;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center">
       <div style="max-width:420px;width:100%">
-        <div style="width:100%;height:220px;background:linear-gradient(135deg,#1a3a2a,#2d5a3d);border-radius:16px;margin-bottom:2rem;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid rgba(255,255,255,0.1)">
-          <div style="font-size:64px">🎣</div>
+        <div style="width:100%;height:240px;border-radius:16px;margin-bottom:2rem;overflow:hidden;border:1px solid rgba(255,255,255,0.1);position:relative">
+          <img src="farm.jpg" alt="The Faithful Hound Trout Farm" style="width:100%;height:100%;object-fit:cover;object-position:center"/>
+          <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.1),rgba(15,32,39,0.6))"></div>
         </div>
         <h1 style="color:#fff;font-size:24px;font-weight:700;margin-bottom:6px;letter-spacing:-0.5px">The Faithful Hound</h1>
         <p style="color:#86efac;font-size:14px;font-weight:500;margin-bottom:8px;letter-spacing:1px;text-transform:uppercase">Trout Farm · Dullstroom</p>
