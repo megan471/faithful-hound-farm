@@ -1,741 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>The Faithful Hound Trout Farm</title>
-  <script src="firebase-config.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; color: #1e293b; min-height: 100vh; }
-    .app { max-width: 720px; margin: 0 auto; padding: 0 0 3rem; background: #fff; min-height: 100vh; box-shadow: 0 0 0 0.5px #e2e8f0; }
-    button { font-family: inherit; cursor: pointer; border-radius: 6px; border: 0.5px solid #cbd5e1; background: transparent; color: #475569; font-size: 13px; padding: 5px 10px; transition: background 0.15s; }
-    button:hover { background: #f1f5f9; }
-    input, select, textarea { font-family: inherit; font-size: 13px; border: 0.5px solid #cbd5e1; border-radius: 6px; padding: 7px 10px; width: 100%; outline: none; background: #fff; color: #1e293b; }
-    input:focus, select:focus, textarea:focus { border-color: #93c5fd; box-shadow: 0 0 0 2px #dbeafe; }
-    .header { padding: 1rem 1rem 0; }
-    .header h1 { font-size: 17px; font-weight: 600; }
-    .header-sub { font-size: 12px; color: #64748b; margin-top: 2px; display: flex; align-items: center; gap: 8px; }
-    .owner-pills { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0 12px; }
-    .pill { font-size: 12px; padding: 4px 12px; border-radius: 20px; cursor: pointer; border: 0.5px solid #cbd5e1; }
-    .tabs { display: flex; border-bottom: 0.5px solid #e2e8f0; overflow-x: auto; }
-    .tab { font-size: 13px; padding: 8px 12px; border: none; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; white-space: nowrap; }
-    .tab.active { border-bottom-color: #1e293b; font-weight: 500; color: #1e293b; }
-    .content { padding: 1rem; }
-    .card { background: #fff; border: 0.5px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; }
-    .badge { font-size: 11px; border-radius: 10px; padding: 1px 7px; display: inline-flex; align-items: center; }
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 999; padding: 1rem; }
-    .modal { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.5rem; width: 100%; max-width: 400px; max-height: 85vh; overflow-y: auto; }
-    .modal.wide { max-width: 440px; }
-    .avatar { border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: #fff; font-weight: 600; flex-shrink: 0; }
-    .toast { position: fixed; top: 12px; right: 12px; z-index: 9999; border-radius: 8px; padding: 10px 16px; font-size: 13px; font-weight: 500; max-width: 280px; animation: fadein 0.2s; }
-    @keyframes fadein { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
-    .live { font-size: 11px; }
-    .live.ok { color: #059669; }
-    .live.saving { color: #d97706; }
-    .filters { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
-    .filters select { width: auto; }
-    .expense-row { border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; }
-    .empty { text-align: center; padding: 2rem 1rem; color: #94a3b8; font-size: 14px; }
-    .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
-    .summary-card { border-radius: 8px; padding: 10px 14px; }
-    @media (max-width: 500px) { .card-actions { flex-wrap: wrap; } }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The Faithful Hound Trout Farm</title>
+<script src="firebase-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8fafc;color:#1e293b;min-height:100vh;}
+.app{max-width:720px;margin:0 auto;padding:0 0 3rem;background:#fff;min-height:100vh;box-shadow:0 0 0 0.5px #e2e8f0;}
+button{font-family:inherit;cursor:pointer;border-radius:6px;border:0.5px solid #cbd5e1;background:transparent;color:#475569;font-size:13px;padding:5px 10px;}
+button:hover{background:#f1f5f9;}
+input,select,textarea{font-family:inherit;font-size:13px;border:0.5px solid #cbd5e1;border-radius:6px;padding:7px 10px;width:100%;outline:none;background:#fff;color:#1e293b;}
+input:focus,select:focus,textarea:focus{border-color:#93c5fd;box-shadow:0 0 0 2px #dbeafe;}
+.header{padding:1rem 1rem 0;}
+.header h1{font-size:17px;font-weight:600;}
+.header-sub{font-size:12px;color:#64748b;margin-top:2px;display:flex;align-items:center;gap:8px;}
+.owner-pills{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 12px;}
+.pill{font-size:12px;padding:4px 12px;border-radius:20px;cursor:pointer;border:0.5px solid #cbd5e1;}
+.tabs{display:flex;border-bottom:0.5px solid #e2e8f0;overflow-x:auto;}
+.tab{font-size:13px;padding:8px 12px;border:none;border-bottom:2px solid transparent;border-radius:0;background:transparent;white-space:nowrap;}
+.tab.active{border-bottom-color:#1e293b;font-weight:500;color:#1e293b;}
+.content{padding:1rem;}
+.card{background:#fff;border:0.5px solid #e2e8f0;border-radius:8px;padding:10px 14px;margin-bottom:8px;}
+.badge{font-size:11px;border-radius:10px;padding:1px 7px;display:inline-flex;align-items:center;}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:999;padding:1rem;}
+.modal{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:1.5rem;width:100%;max-width:400px;max-height:85vh;overflow-y:auto;}
+.modal.wide{max-width:440px;}
+.avatar{border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:600;flex-shrink:0;}
+.toast{position:fixed;top:12px;right:12px;z-index:9999;border-radius:8px;padding:10px 16px;font-size:13px;font-weight:500;max-width:280px;}
+.live{font-size:11px;}
+.live.ok{color:#059669;}
+.live.saving{color:#d97706;}
+.filters{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;}
+.filters select{width:auto;}
+.expense-row{border-radius:8px;padding:10px 12px;margin-bottom:8px;}
+.empty{text-align:center;padding:2rem 1rem;color:#94a3b8;font-size:14px;}
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+.summary-card{border-radius:8px;padding:10px 14px;}
+@media(max-width:500px){.card-actions{flex-wrap:wrap;}}
+</style>
 </head>
 <body>
 <div class="app" id="app">
-  <div class="empty" style="padding:3rem">
-    <div style="font-size:28px;margin-bottom:8px">🎣</div>
-    <p>Loading farm data...</p>
-  </div>
+<div class="empty" style="padding:3rem"><div style="font-size:28px;margin-bottom:8px">🎣</div><p>Loading farm data...</p></div>
 </div>
 <script>
-const OWNERS = [
-  { id:"kevin",   name:"Kevin Bassett",    color:"#4F46E5" },
-  { id:"steve",   name:"Steve Robinson",   color:"#0891B2" },
-  { id:"brandon", name:"Brandon Zietsman", color:"#059669" },
-  { id:"mark",    name:"Mark Barnes",      color:"#D97706" },
-  { id:"graham",  name:"Graham Leith",     color:"#DC2626" },
-  { id:"ralph",   name:"Ralph Milton",     color:"#7C3AED" },
-];
-const OID = ["kevin","steve","brandon","mark","graham","ralph"];
-const DEFAULT_PINS = {kevin:"1111",steve:"2222",brandon:"3333",mark:"4444",graham:"5555",ralph:"6666"};
-const ADMIN_ID = "steve";
-const CATS = ["general","fuel","groceries","labour","equipment","maintenance","other"];
-const HOLIDAYS = {
-  "01-01":"New Year's Day","03-21":"Human Rights Day","04-27":"Freedom Day",
-  "05-01":"Workers' Day","06-16":"Youth Day","08-09":"Women's Day",
-  "09-24":"Heritage Day","12-16":"Day of Reconciliation","12-25":"Christmas","12-26":"Day of Goodwill"
-};
-const RAW = [
-  [22,"2025-05-03","2025-05-10","2025-05-17","2025-05-24","2025-05-31","2025-06-07"],
-  [23,"2025-06-14","2025-06-21","2025-06-28","2025-07-05","2025-07-12","2025-07-19"],
-  [24,"2025-07-26","2025-08-02","2025-08-09","2025-08-16","2025-08-23","2025-08-30"],
-  [25,"2025-09-06","2025-09-13","2025-09-27","2025-09-20","2025-10-04","2025-10-11"],
-  [26,"2025-10-18","2025-10-25","2025-11-01","2025-11-08","2025-11-15","2025-11-22"],
-  [27,"2025-11-29","2025-12-06","2025-12-13","2025-12-20","2025-12-27","2026-01-03"],
-  [28,"2026-01-10","2026-01-17","2026-01-24","2026-01-31","2026-02-07","2026-02-14"],
-  [29,"2026-02-21","2026-02-28","2026-03-07","2026-03-14","2026-03-21","2026-03-28"],
-  [30,"2026-04-04","2026-04-25","2026-04-11","2026-04-18","2026-05-02","2026-05-09"],
-  [31,"2026-05-16","2026-05-23","2026-05-30","2026-06-06","2026-06-13","2026-06-20"],
-  [32,"2026-06-27","2026-07-04","2026-07-11","2026-07-18","2026-07-25","2026-08-01"],
-  [33,"2026-08-08","2026-08-15","2026-08-22","2026-08-29","2026-09-05","2026-09-12"],
-  [34,"2026-09-19","2026-09-26","2026-10-03","2026-10-10","2026-10-17","2026-10-24"],
-  [35,"2026-10-31","2026-11-07","2026-11-14","2026-11-21","2026-11-28","2026-12-05"],
-  [36,"2026-12-12","2026-12-19","2026-12-26","2027-01-02","2027-01-09","2027-01-16"],
-  [37,"2027-01-23","2027-01-30","2027-02-06","2027-02-13","2027-02-20","2027-02-27"],
-  [38,"2027-03-06","2027-03-13","2027-03-20","2027-03-27","2027-04-03","2027-04-10"],
-  [39,"2027-04-17","2027-04-24","2027-05-01","2027-05-08","2027-05-15","2027-05-22"],
-  [40,"2027-05-29","2027-06-05","2027-06-12","2027-06-19","2027-06-26","2027-07-03"],
-  [41,"2027-07-10","2027-07-17","2027-07-24","2027-07-31","2027-08-07","2027-08-14"],
-  [42,"2027-08-21","2027-08-28","2027-09-04","2027-09-11","2027-09-18","2027-09-25"],
-  [43,"2027-10-02","2027-10-09","2027-10-16","2027-10-23","2027-10-30","2027-11-06"],
-  [44,"2027-11-13","2027-11-20","2027-11-27","2027-12-04","2027-12-11","2027-12-18"],
-  [45,"2027-12-25","2028-01-01","2028-01-08","2028-01-15","2028-01-22","2028-01-29"],
-  [46,"2028-02-05","2028-02-12","2028-02-19","2028-02-26","2028-03-04","2028-03-11"],
-  [47,"2028-03-18","2028-03-25","2028-04-01","2028-04-08","2028-04-15","2028-04-22"],
-  [48,"2028-04-29","2028-05-06","2028-05-13","2028-05-20","2028-05-27","2028-06-03"],
-  [49,"2028-06-10","2028-06-17","2028-06-24","2028-07-01","2028-07-08","2028-07-15"],
-  [50,"2028-07-22","2028-07-29","2028-08-05","2028-08-12","2028-08-19","2028-08-26"],
-  [51,"2028-09-02","2028-09-09","2028-09-16","2028-09-23","2028-09-30","2028-10-07"],
-  [52,"2028-10-14","2028-10-21","2028-10-28","2028-11-04","2028-11-11","2028-11-18"],
-  [53,"2028-11-25","2028-12-02","2028-12-09","2028-12-16","2028-12-23","2028-12-30"],
-  [54,"2029-01-06","2029-01-13","2029-01-20","2029-01-27","2029-02-03","2029-02-10"],
-  [55,"2029-02-17","2029-02-24","2029-03-03","2029-03-10","2029-03-17","2029-03-24"],
-  [56,"2029-04-07","2029-03-31","2029-04-14","2029-04-21","2029-04-28","2029-05-05"],
-  [57,"2029-05-12","2029-05-19","2029-05-26","2029-06-02","2029-06-09","2029-06-16"],
-  [58,"2029-06-23","2029-06-30","2029-07-07","2029-07-14","2029-07-21","2029-07-28"],
-  [59,"2029-08-04","2029-08-11","2029-08-18","2029-08-25","2029-09-01","2029-09-08"],
-  [60,"2029-09-15","2029-09-22","2029-09-29","2029-10-06","2029-10-13","2029-10-20"],
-  [61,"2029-10-27","2029-11-03","2029-11-10","2029-11-17","2029-11-24","2029-12-01"],
-  [62,"2029-12-08","2029-12-15","2029-12-22","2029-12-29","2030-01-05","2030-01-12"],
-  [63,"2030-01-19","2030-01-26","2030-02-02","2030-02-09","2030-02-16","2030-02-23"],
-];
-
-const ALL_WEEKENDS = RAW.flatMap(([rnd,...dates])=>OID.map((oid,i)=>({id:`${rnd}-${oid}`,round:rnd,origOwner:oid,date:dates[i]}))).sort((a,b)=>a.date.localeCompare(b.date));
-
-function nearHoliday(d){
-  const dt=new Date(d+"T00:00:00");
-  for(let i=-1;i<=2;i++){
-    const c=new Date(dt);c.setDate(dt.getDate()+i);
-    const k=String(c.getMonth()+1).padStart(2,"0")+"-"+String(c.getDate()).padStart(2,"0");
-    if(HOLIDAYS[k])return HOLIDAYS[k];
-  }
-  return null;
-}
-
+const OWNERS=[{id:"kevin",name:"Kevin Bassett",color:"#4F46E5"},{id:"steve",name:"Steve Robinson",color:"#0891B2"},{id:"brandon",name:"Brandon Zietsman",color:"#059669"},{id:"mark",name:"Mark Barnes",color:"#D97706"},{id:"graham",name:"Graham Leith",color:"#DC2626"},{id:"ralph",name:"Ralph Milton",color:"#7C3AED"}];
+const OID=["kevin","steve","brandon","mark","graham","ralph"];
+const DEFAULT_PINS={kevin:"1111",steve:"2222",brandon:"3333",mark:"4444",graham:"5555",ralph:"6666"};
+const ADMIN_ID="steve";
+const CATS=["general","fuel","groceries","labour","equipment","maintenance","other"];
+const HOLIDAYS={"01-01":"New Year's Day","03-21":"Human Rights Day","04-27":"Freedom Day","05-01":"Workers Day","06-16":"Youth Day","08-09":"Women's Day","09-24":"Heritage Day","12-16":"Day of Reconciliation","12-25":"Christmas","12-26":"Day of Goodwill"};
+const RAW=[[22,"2025-05-03","2025-05-10","2025-05-17","2025-05-24","2025-05-31","2025-06-07"],[23,"2025-06-14","2025-06-21","2025-06-28","2025-07-05","2025-07-12","2025-07-19"],[24,"2025-07-26","2025-08-02","2025-08-09","2025-08-16","2025-08-23","2025-08-30"],[25,"2025-09-06","2025-09-13","2025-09-27","2025-09-20","2025-10-04","2025-10-11"],[26,"2025-10-18","2025-10-25","2025-11-01","2025-11-08","2025-11-15","2025-11-22"],[27,"2025-11-29","2025-12-06","2025-12-13","2025-12-20","2025-12-27","2026-01-03"],[28,"2026-01-10","2026-01-17","2026-01-24","2026-01-31","2026-02-07","2026-02-14"],[29,"2026-02-21","2026-02-28","2026-03-07","2026-03-14","2026-03-21","2026-03-28"],[30,"2026-04-04","2026-04-25","2026-04-11","2026-04-18","2026-05-02","2026-05-09"],[31,"2026-05-16","2026-05-23","2026-05-30","2026-06-06","2026-06-13","2026-06-20"],[32,"2026-06-27","2026-07-04","2026-07-11","2026-07-18","2026-07-25","2026-08-01"],[33,"2026-08-08","2026-08-15","2026-08-22","2026-08-29","2026-09-05","2026-09-12"],[34,"2026-09-19","2026-09-26","2026-10-03","2026-10-10","2026-10-17","2026-10-24"],[35,"2026-10-31","2026-11-07","2026-11-14","2026-11-21","2026-11-28","2026-12-05"],[36,"2026-12-12","2026-12-19","2026-12-26","2027-01-02","2027-01-09","2027-01-16"],[37,"2027-01-23","2027-01-30","2027-02-06","2027-02-13","2027-02-20","2027-02-27"],[38,"2027-03-06","2027-03-13","2027-03-20","2027-03-27","2027-04-03","2027-04-10"],[39,"2027-04-17","2027-04-24","2027-05-01","2027-05-08","2027-05-15","2027-05-22"],[40,"2027-05-29","2027-06-05","2027-06-12","2027-06-19","2027-06-26","2027-07-03"],[41,"2027-07-10","2027-07-17","2027-07-24","2027-07-31","2027-08-07","2027-08-14"],[42,"2027-08-21","2027-08-28","2027-09-04","2027-09-11","2027-09-18","2027-09-25"],[43,"2027-10-02","2027-10-09","2027-10-16","2027-10-23","2027-10-30","2027-11-06"],[44,"2027-11-13","2027-11-20","2027-11-27","2027-12-04","2027-12-11","2027-12-18"],[45,"2027-12-25","2028-01-01","2028-01-08","2028-01-15","2028-01-22","2028-01-29"],[46,"2028-02-05","2028-02-12","2028-02-19","2028-02-26","2028-03-04","2028-03-11"],[47,"2028-03-18","2028-03-25","2028-04-01","2028-04-08","2028-04-15","2028-04-22"],[48,"2028-04-29","2028-05-06","2028-05-13","2028-05-20","2028-05-27","2028-06-03"],[49,"2028-06-10","2028-06-17","2028-06-24","2028-07-01","2028-07-08","2028-07-15"],[50,"2028-07-22","2028-07-29","2028-08-05","2028-08-12","2028-08-19","2028-08-26"],[51,"2028-09-02","2028-09-09","2028-09-16","2028-09-23","2028-09-30","2028-10-07"],[52,"2028-10-14","2028-10-21","2028-10-28","2028-11-04","2028-11-11","2028-11-18"],[53,"2028-11-25","2028-12-02","2028-12-09","2028-12-16","2028-12-23","2028-12-30"],[54,"2029-01-06","2029-01-13","2029-01-20","2029-01-27","2029-02-03","2029-02-10"],[55,"2029-02-17","2029-02-24","2029-03-03","2029-03-10","2029-03-17","2029-03-24"],[56,"2029-04-07","2029-03-31","2029-04-14","2029-04-21","2029-04-28","2029-05-05"],[57,"2029-05-12","2029-05-19","2029-05-26","2029-06-02","2029-06-09","2029-06-16"],[58,"2029-06-23","2029-06-30","2029-07-07","2029-07-14","2029-07-21","2029-07-28"],[59,"2029-08-04","2029-08-11","2029-08-18","2029-08-25","2029-09-01","2029-09-08"],[60,"2029-09-15","2029-09-22","2029-09-29","2029-10-06","2029-10-13","2029-10-20"],[61,"2029-10-27","2029-11-03","2029-11-10","2029-11-17","2029-11-24","2029-12-01"],[62,"2029-12-08","2029-12-15","2029-12-22","2029-12-29","2030-01-05","2030-01-12"],[63,"2030-01-19","2030-01-26","2030-02-02","2030-02-09","2030-02-16","2030-02-23"]];
+const ALL_WEEKENDS=RAW.flatMap(([rnd,...dates])=>OID.map((oid,i)=>({id:`${rnd}-${oid}`,round:rnd,origOwner:oid,date:dates[i]}))).sort((a,b)=>a.date.localeCompare(b.date));
+function nearHoliday(d){const dt=new Date(d+"T00:00:00");for(let i=-1;i<=2;i++){const c=new Date(dt);c.setDate(dt.getDate()+i);const k=String(c.getMonth()+1).padStart(2,"0")+"-"+String(c.getDate()).padStart(2,"0");if(HOLIDAYS[k])return HOLIDAYS[k];}return null;}
 function fmt(d){return new Date(d+"T00:00:00").toLocaleDateString("en-ZA",{day:"numeric",month:"short",year:"numeric"});}
-
-function avatar(name,color,size=28){
-  const initials=name.split(" ").map(n=>n[0]).join("");
-  return `<div class="avatar" style="width:${size}px;height:${size}px;background:${color};font-size:${size<30?10:12}px">${initials}</div>`;
-}
-
-let STATE={};
-let PINS={...DEFAULT_PINS};
-let currentUser=null;
-let currentTab="all";
-let filterOwner="all";
-let filterYear="all";
-let syncing=false;
-let lastSync=null;
-let expFilter="pending";
-let showCover=true;
-
+function avatar(name,color,size){size=size||28;return'<div class="avatar" style="width:'+size+'px;height:'+size+'px;background:'+color+';font-size:'+(size<30?10:12)+'px">'+name.split(" ").map(n=>n[0]).join("")+'</div>';}
+let STATE={},PINS={...DEFAULT_PINS},currentUser=null,currentTab="all",filterOwner="all",filterYear="all",syncing=false,lastSync=null,expFilter="pending",showCover=true;
 firebase.initializeApp(firebaseConfig);
-const db=firebase.database();
-const stateRef=db.ref("farmState");
-const pinsRef=db.ref("farmPins");
-
+const db=firebase.database(),stateRef=db.ref("farmState"),pinsRef=db.ref("farmPins");
 stateRef.on("value",snap=>{const val=snap.val();if(val)STATE=val;if(!showCover)render();});
-pinsRef.on("value",snap=>{const val=snap.val();if(val)PINS=val;if(!showCover)render();});
-
+pinsRef.on("value",snap=>{const val=snap.val();if(val)PINS=val;});
 function getS(id){return STATE[id]||{going:null,available:false,claimedBy:null,reallocTo:null,comments:[],expenses:[]};}
-
-async function patchState(id,p){
-  const updated={...getS(id),...p};
-  STATE[id]=updated;
-  syncing=true;render();
-  await stateRef.child(id).set(updated);
-  syncing=false;lastSync=new Date();render();
-}
-
-async function savePins(updated){PINS=updated;await pinsRef.set(updated);}
-
-function effOwner(id){
-  const s=getS(id);
-  if(s.reallocTo)return s.reallocTo;
-  if(s.claimedBy)return s.claimedBy;
-  return ALL_WEEKENDS.find(x=>x.id===id)?.origOwner||null;
-}
-
+async function patchState(id,p){const u={...getS(id),...p};STATE[id]=u;syncing=true;render();await stateRef.child(id).set(u);syncing=false;lastSync=new Date();render();}
+async function savePins(u){PINS=u;await pinsRef.set(u);}
+function effOwner(id){const s=getS(id);if(s.reallocTo)return s.reallocTo;if(s.claimedBy)return s.claimedBy;return ALL_WEEKENDS.find(x=>x.id===id)?.origOwner||null;}
 const today=new Date().toISOString().split("T")[0];
-
-function showToast(msg,type){
-  type=type||"ok";
-  const existing=document.getElementById("toast");
-  if(existing)existing.remove();
-  const el=document.createElement("div");
-  el.id="toast";
-  el.className="toast";
-  el.style.background=type==="ok"?"#dcfce7":"#fee2e2";
-  el.style.color=type==="ok"?"#166534":"#991b1b";
-  el.style.border="0.5px solid "+(type==="ok"?"#86efac":"#fca5a5");
-  el.textContent=msg;
-  document.body.appendChild(el);
-  setTimeout(()=>el.remove(),3500);
-}
-
+function showToast(msg,type){type=type||"ok";const e=document.getElementById("toast");if(e)e.remove();const el=document.createElement("div");el.id="toast";el.className="toast";el.style.background=type==="ok"?"#dcfce7":"#fee2e2";el.style.color=type==="ok"?"#166534":"#991b1b";el.style.border="0.5px solid "+(type==="ok"?"#86efac":"#fca5a5");el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),3500);}
 function closeModal(){const m=document.getElementById("modal-overlay");if(m)m.remove();}
-
-function openModal(html){
-  closeModal();
-  const overlay=document.createElement("div");
-  overlay.className="modal-overlay";
-  overlay.id="modal-overlay";
-  overlay.innerHTML=html;
-  overlay.addEventListener("click",e=>{if(e.target===overlay)closeModal();});
-  document.body.appendChild(overlay);
-}
-
-function renderCover(){
-  document.getElementById("app").innerHTML=`
-    <div style="min-height:100vh;background:#0f2027;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center">
-      <div style="max-width:420px;width:100%">
-        <div style="width:100%;height:240px;border-radius:16px;margin-bottom:2rem;overflow:hidden;border:1px solid rgba(255,255,255,0.1);position:relative">
-          <img src="e58115c4-b30c-4c31-accb-61c34cc683b6.JPG" alt="The Faithful Hound Trout Farm" style="width:100%;height:100%;object-fit:cover;object-position:center" onerror="this.parentElement.style.background='linear-gradient(135deg,#1a3a2a,#2d5a3d)';this.style.display='none'"/>
-          <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.1),rgba(15,32,39,0.6))"></div>
-        </div>
-        <h1 style="color:#fff;font-size:24px;font-weight:700;margin-bottom:6px;letter-spacing:-0.5px">The Faithful Hound</h1>
-        <p style="color:#86efac;font-size:14px;font-weight:500;margin-bottom:8px;letter-spacing:1px;text-transform:uppercase">Trout Farm · Dullstroom</p>
-        <p style="color:rgba(255,255,255,0.4);font-size:12px;margin-bottom:20px">Select your name to sign in</p>
-        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:1rem;margin-bottom:1rem">
-          <div style="display:flex;flex-direction:column;gap:8px">
-            ${OWNERS.map(o=>`
-              <button onclick="coverLogin('${o.id}')" style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;cursor:pointer;width:100%" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
-                <div style="width:32px;height:32px;border-radius:50%;background:${o.color};color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">${o.name.split(" ").map(n=>n[0]).join("")}</div>
-                <span style="color:#fff;font-size:14px;font-weight:500">${o.name}</span>
-                <span style="color:rgba(255,255,255,0.3);font-size:12px;margin-left:auto">→</span>
-              </button>`).join("")}
-          </div>
-        </div>
-        <p style="color:rgba(255,255,255,0.25);font-size:11px">Private shareholders portal</p>
-      </div>
-    </div>`;
-}
-
-function coverLogin(oid){
-  const o=OWNERS.find(x=>x.id===oid);
-  openModal(`<div class="modal">
-    <div style="text-align:center;margin-bottom:16px">
-      <div style="width:48px;height:48px;border-radius:50%;background:${o.color};color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;margin:0 auto 8px">${o.name.split(" ").map(n=>n[0]).join("")}</div>
-      <p style="font-weight:600;font-size:15px;color:#1e293b">${o.name}</p>
-      <p style="font-size:13px;color:#64748b;margin-top:2px">Enter your 4-digit PIN</p>
-    </div>
-    <input type="password" id="pin-input" maxlength="4" placeholder="••••" style="font-size:22px;letter-spacing:10px;text-align:center;margin-bottom:8px;width:100%;box-sizing:border-box"/>
-    <p id="pin-err" style="color:#dc2626;font-size:12px;margin-bottom:8px;display:none;text-align:center"></p>
-    <div style="display:flex;gap:8px">
-      <button onclick="closeModal()" style="flex:1">Cancel</button>
-      <button onclick="doCoverLogin('${oid}')" style="flex:1;background:#EFF6FF;color:#1D4ED8;border-color:#93C5FD;font-weight:500">Enter</button>
-    </div>
-  </div>`);
-  setTimeout(()=>{
-    const el=document.getElementById("pin-input");
-    if(el){el.focus();el.addEventListener("keydown",e=>{if(e.key==="Enter")doCoverLogin(oid);});}
-  },50);
-}
-
-function doCoverLogin(oid){
-  const val=document.getElementById("pin-input")?.value||"";
-  const exp=PINS[oid];
-  if(!exp||val===exp||val===""){
-    currentUser=oid;showCover=false;closeModal();render();
-  } else {
-    const err=document.getElementById("pin-err");
-    if(err){err.style.display="block";err.textContent="Incorrect PIN — try again.";}
-  }
-}
-
-function loginModal(oid){
-  const o=OWNERS.find(x=>x.id===oid);
-  openModal(`<div class="modal">
-    <p style="font-weight:600;font-size:15px;margin-bottom:4px;color:#1e293b">${o.name}</p>
-    <p style="font-size:13px;color:#64748b;margin-bottom:12px">Enter your 4-digit PIN</p>
-    <input type="password" id="pin-input" maxlength="4" placeholder="••••" style="font-size:22px;letter-spacing:10px;text-align:center;margin-bottom:8px"/>
-    <p id="pin-err" style="color:#dc2626;font-size:12px;margin-bottom:8px;display:none"></p>
-    <div style="display:flex;gap:8px">
-      <button onclick="closeModal()" style="flex:1">Cancel</button>
-      <button onclick="doLogin('${oid}')" style="flex:1;background:#EFF6FF;color:#1D4ED8;border-color:#93C5FD">Sign in</button>
-    </div>
-  </div>`);
-  setTimeout(()=>{
-    const el=document.getElementById("pin-input");
-    if(el){el.focus();el.addEventListener("keydown",e=>{if(e.key==="Enter")doLogin(oid);});}
-  },50);
-}
-
-function doLogin(oid){
-  const val=document.getElementById("pin-input")?.value||"";
-  const exp=PINS[oid];
-  if(!exp||val===exp||val===""){currentUser=oid;closeModal();showToast("Signed in as "+OWNERS.find(o=>o.id===oid).name);render();}
-  else{const err=document.getElementById("pin-err");if(err){err.style.display="block";err.textContent="Incorrect PIN — try again.";}}
-}
-
-function reallocModal(wid){
-  const w=ALL_WEEKENDS.find(x=>x.id===wid);
-  const rows=OWNERS.filter(o=>o.id!==currentUser).map(o=>`
-    <button onclick="doRealloc('${wid}','${o.id}')" style="display:flex;align-items:center;gap:10px;padding:10px 14px;width:100%;text-align:left;background:#fff;border:1px solid #e2e8f0;margin-bottom:8px;border-radius:8px">
-      ${avatar(o.name,o.color,34)}
-      <span style="font-size:14px;font-weight:500;color:#1e293b">${o.name}</span>
-    </button>`).join("");
-  openModal(`<div class="modal">
-    <p style="font-weight:600;font-size:15px;margin-bottom:4px;color:#1e293b">Reallocate weekend</p>
-    <p style="font-size:13px;color:#64748b;margin-bottom:14px">${fmt(w.date)} — choose who gets it</p>
-    ${rows}
-    <button onclick="closeModal()" style="width:100%">Cancel</button>
-  </div>`);
-}
-
-async function doRealloc(wid,toId){
-  await patchState(wid,{reallocTo:toId,available:false,going:null,claimedBy:null});
-  closeModal();showToast("Weekend given to "+OWNERS.find(o=>o.id===toId).name+"!");
-}
-
-function availModal(wid){
-  const w=ALL_WEEKENDS.find(x=>x.id===wid);
-  openModal(`<div class="modal">
-    <p style="font-weight:600;font-size:15px;margin-bottom:4px;color:#1e293b">Make available to all?</p>
-    <p style="font-size:13px;color:#64748b;margin-bottom:16px">${fmt(w.date)} will appear in the Available tab. Anyone can claim it — first come, first served.</p>
-    <div style="display:flex;gap:8px">
-      <button onclick="closeModal()" style="flex:1">Cancel</button>
-      <button onclick="doMakeAvail('${wid}')" style="flex:1;background:#059669;color:#fff;border:none;font-weight:500">Yes, release it</button>
-    </div>
-  </div>`);
-}
-
-async function doMakeAvail(wid){
-  await patchState(wid,{available:true,going:false,reallocTo:null,claimedBy:null});
-  closeModal();showToast("Weekend released — first come, first served!");
-}
-
-async function doClaim(wid){
-  if(!currentUser){showToast("Sign in first to claim a weekend.","err");return;}
-  const w=ALL_WEEKENDS.find(x=>x.id===wid);
-  await patchState(wid,{available:false,claimedBy:currentUser,reallocTo:currentUser});
-  showToast("You've claimed "+fmt(w.date)+"! 🎣");
-}
-
+function openModal(html){closeModal();const o=document.createElement("div");o.className="modal-overlay";o.id="modal-overlay";o.innerHTML=html;o.addEventListener("click",e=>{if(e.target===o)closeModal();});document.body.appendChild(o);}
+function renderCover(){document.getElementById("app").innerHTML='<div style="min-height:100vh;background:#0f2027;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center"><div style="max-width:420px;width:100%"><div style="width:100%;height:240px;border-radius:16px;margin-bottom:2rem;overflow:hidden;border:1px solid rgba(255,255,255,0.1);position:relative"><img src="e58115c4-b30c-4c31-accb-61c34cc683b6.JPG" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.style.background=\'linear-gradient(135deg,#1a3a2a,#2d5a3d)\';this.style.display=\'none\'"/><div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.1),rgba(15,32,39,0.6))"></div></div><h1 style="color:#fff;font-size:24px;font-weight:700;margin-bottom:6px">The Faithful Hound</h1><p style="color:#86efac;font-size:14px;font-weight:500;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Trout Farm - Dullstroom</p><p style="color:rgba(255,255,255,0.4);font-size:12px;margin-bottom:20px">Select your name to sign in</p><div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:1rem;margin-bottom:1rem"><div style="display:flex;flex-direction:column;gap:8px">'+OWNERS.map(o=>'<button onclick="coverLogin(\''+o.id+'\')" style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;cursor:pointer;width:100%" onmouseover="this.style.background=\'rgba(255,255,255,0.12)\'" onmouseout="this.style.background=\'rgba(255,255,255,0.05)\'"><div style="width:32px;height:32px;border-radius:50%;background:'+o.color+';color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">'+o.name.split(" ").map(n=>n[0]).join("")+'</div><span style="color:#fff;font-size:14px;font-weight:500">'+o.name+'</span><span style="color:rgba(255,255,255,0.3);margin-left:auto">&#8594;</span></button>').join("")+'</div></div><p style="color:rgba(255,255,255,0.25);font-size:11px">Private shareholders portal</p></div></div>';}
+function coverLogin(oid){const o=OWNERS.find(x=>x.id===oid);openModal('<div class="modal"><div style="text-align:center;margin-bottom:16px"><div style="width:48px;height:48px;border-radius:50%;background:'+o.color+';color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;margin:0 auto 8px">'+o.name.split(" ").map(n=>n[0]).join("")+'</div><p style="font-weight:600;font-size:15px;color:#1e293b">'+o.name+'</p><p style="font-size:13px;color:#64748b;margin-top:2px">Enter your 4-digit PIN</p></div><input type="password" id="pin-input" maxlength="4" placeholder="&#9679;&#9679;&#9679;&#9679;" style="font-size:22px;letter-spacing:10px;text-align:center;margin-bottom:8px;width:100%;box-sizing:border-box"/><p id="pin-err" style="color:#dc2626;font-size:12px;margin-bottom:8px;display:none;text-align:center"></p><div style="display:flex;gap:8px"><button onclick="closeModal()" style="flex:1">Cancel</button><button onclick="doCoverLogin(\''+oid+'\')" style="flex:1;background:#EFF6FF;color:#1D4ED8;border-color:#93C5FD;font-weight:500">Enter</button></div></div>');setTimeout(()=>{const el=document.getElementById("pin-input");if(el){el.focus();el.addEventListener("keydown",e=>{if(e.key==="Enter")doCoverLogin(oid);});}},50);}
+function doCoverLogin(oid){const val=document.getElementById("pin-input")?document.getElementById("pin-input").value:"";const exp=PINS[oid];if(!exp||val===exp||val===""){currentUser=oid;showCover=false;closeModal();render();}else{const err=document.getElementById("pin-err");if(err){err.style.display="block";err.textContent="Incorrect PIN - try again.";}}}
+function loginModal(oid){const o=OWNERS.find(x=>x.id===oid);openModal('<div class="modal"><p style="font-weight:600;font-size:15px;margin-bottom:4px;color:#1e293b">'+o.name+'</p><p style="font-size:13px;color:#64748b;margin-bottom:12px">Enter your 4-digit PIN</p><input type="password" id="pin-input" maxlength="4" placeholder="&#9679;&#9679;&#9679;&#9679;" style="font-size:22px;letter-spacing:10px;text-align:center;margin-bottom:8px"/><p id="pin-err" style="color:#dc2626;font-size:12px;margin-bottom:8px;display:none"></p><div style="display:flex;gap:8px"><button onclick="closeModal()" style="flex:1">Cancel</button><button onclick="doLogin(\''+oid+'\')" style="flex:1;background:#EFF6FF;color:#1D4ED8;border-color:#93C5FD">Sign in</button></div></div>');setTimeout(()=>{const el=document.getElementById("pin-input");if(el){el.focus();el.addEventListener("keydown",e=>{if(e.key==="Enter")doLogin(oid);});}},50);}
+function doLogin(oid){const val=document.getElementById("pin-input")?document.getElementById("pin-input").value:"";const exp=PINS[oid];if(!exp||val===exp||val===""){currentUser=oid;closeModal();showToast("Signed in as "+OWNERS.find(o=>o.id===oid).name);render();}else{const err=document.getElementById("pin-err");if(err){err.style.display="block";err.textContent="Incorrect PIN - try again.";}}}
+function reallocModal(wid){const w=ALL_WEEKENDS.find(x=>x.id===wid);const rows=OWNERS.filter(o=>o.id!==currentUser).map(o=>'<button onclick="doRealloc(\''+wid+'\',\''+o.id+'\')" style="display:flex;align-items:center;gap:10px;padding:10px 14px;width:100%;text-align:left;background:#fff;border:1px solid #e2e8f0;margin-bottom:8px;border-radius:8px">'+avatar(o.name,o.color,34)+'<span style="font-size:14px;font-weight:500;color:#1e293b">'+o.name+'</span></button>').join("");openModal('<div class="modal"><p style="font-weight:600;font-size:15px;margin-bottom:4px;color:#1e293b">Reallocate weekend</p><p style="font-size:13px;color:#64748b;margin-bottom:14px">'+fmt(w.date)+' - choose who gets it</p>'+rows+'<button onclick="closeModal()" style="width:100%">Cancel</button></div>');}
+async function doRealloc(wid,toId){await patchState(wid,{reallocTo:toId,available:false,going:null,claimedBy:null});closeModal();showToast("Weekend given to "+OWNERS.find(o=>o.id===toId).name+"!");}
+function availModal(wid){const w=ALL_WEEKENDS.find(x=>x.id===wid);openModal('<div class="modal"><p style="font-weight:600;font-size:15px;margin-bottom:4px;color:#1e293b">Make available to all?</p><p style="font-size:13px;color:#64748b;margin-bottom:16px">'+fmt(w.date)+' will appear in the Available tab. Anyone can claim it.</p><div style="display:flex;gap:8px"><button onclick="closeModal()" style="flex:1">Cancel</button><button onclick="doMakeAvail(\''+wid+'\')" style="flex:1;background:#059669;color:#fff;border:none;font-weight:500">Yes, release it</button></div></div>');}
+async function doMakeAvail(wid){await patchState(wid,{available:true,going:false,reallocTo:null,claimedBy:null});closeModal();showToast("Weekend released!");}
+async function doClaim(wid){if(!currentUser){showToast("Sign in first.","err");return;}const w=ALL_WEEKENDS.find(x=>x.id===wid);await patchState(wid,{available:false,claimedBy:currentUser,reallocTo:currentUser});showToast("You've claimed "+fmt(w.date)+"!");}
 async function setGoing(wid,val){await patchState(wid,{going:val,available:false});}
-
-function commentModal(wid){
-  const w=ALL_WEEKENDS.find(x=>x.id===wid);
-  const s=getS(wid);
-  const comments=s.comments||[];
-  const rows=comments.length===0
-    ?`<p style="font-size:13px;color:#94a3b8;text-align:center;padding:1rem 0">No messages yet — be the first to leave a note!</p>`
-    :comments.map(c=>{
-        const author=OWNERS.find(o=>o.id===c.authorId);
-        const canDel=c.authorId===currentUser;
-        return `<div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:8px">
-          ${avatar(author?.name||"?",author?.color||"#888",28)}
-          <div style="flex:1;background:#f8fafc;border:0.5px solid #e2e8f0;border-radius:8px;padding:8px 10px">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
-              <span style="font-size:12px;font-weight:600;color:#1e293b">${author?.name}</span>
-              <div style="display:flex;gap:6px;align-items:center">
-                <span style="font-size:11px;color:#94a3b8">${c.time}</span>
-                ${canDel?`<button onclick="deleteComment('${wid}',${c.id})" style="font-size:11px;padding:1px 6px;color:#dc2626;border-color:#fca5a5;background:#fff1f2">✕</button>`:""}
-              </div>
-            </div>
-            <p style="font-size:13px;color:#334155;line-height:1.5;margin:0">${c.text}</p>
-          </div>
-        </div>`;
-      }).join("");
-  const inputArea=currentUser
-    ?`<div style="display:flex;gap:8px;border-top:0.5px solid #e2e8f0;padding-top:12px;margin-top:4px">
-        <textarea id="comment-text" placeholder="Leave a note for the group..." rows="2" style="flex:1;resize:none;font-size:13px;border:0.5px solid #cbd5e1;border-radius:6px;padding:8px 10px"></textarea>
-        <button onclick="postComment('${wid}')" style="font-size:13px;padding:0 14px;background:#4F46E5;color:#fff;border:none;font-weight:500;align-self:stretch;border-radius:6px">Post</button>
-      </div>`
-    :`<p style="font-size:12px;color:#64748b;text-align:center;padding-top:8px;border-top:0.5px solid #e2e8f0">Sign in to leave a comment.</p>`;
-  openModal(`<div class="modal">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
-      <p style="font-weight:600;font-size:15px;color:#1e293b">💬 Comments</p>
-      <button onclick="closeModal()">Close</button>
-    </div>
-    <p style="font-size:12px;color:#64748b;margin-bottom:12px">${fmt(w.date)}</p>
-    <div style="max-height:260px;overflow-y:auto;margin-bottom:4px">${rows}</div>
-    ${inputArea}
-  </div>`);
-  setTimeout(()=>{
-    const ta=document.getElementById("comment-text");
-    if(ta)ta.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();postComment(wid);}});
-  },50);
-}
-
-async function postComment(wid){
-  const el=document.getElementById("comment-text");
-  const text=el?.value?.trim()||"";
-  if(!text||!currentUser)return;
-  const existing=getS(wid).comments||[];
-  const nc={id:Date.now(),authorId:currentUser,text,time:new Date().toLocaleString("en-ZA",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})};
-  await patchState(wid,{comments:[...existing,nc]});
-  closeModal();showToast("Comment posted!");
-}
-
-async function deleteComment(wid,cid){
-  const existing=getS(wid).comments||[];
-  await patchState(wid,{comments:existing.filter(c=>c.id!==cid)});
-  closeModal();
-}
-
-function expenseModal(wid){
-  const w=ALL_WEEKENDS.find(x=>x.id===wid);
-  const s=getS(wid);
-  const expenses=s.expenses||[];
-  const total=expenses.reduce((sum,e)=>sum+e.amount,0);
-  const rows=expenses.length===0
-    ?`<p style="font-size:13px;color:#94a3b8;text-align:center;padding:1rem 0">No expenses logged for this weekend yet.</p>`
-    :expenses.map(e=>{
-        const sub=OWNERS.find(o=>o.id===e.submittedBy);
-        const canDel=e.submittedBy===currentUser||currentUser===ADMIN_ID;
-        const canMark=currentUser===ADMIN_ID&&e.status==="pending";
-        return `<div class="expense-row" style="background:${e.status==="recorded"?"#f0fdf4":"#fffbeb"};border:1px solid ${e.status==="recorded"?"#86efac":"#fcd34d"}">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
-            <div style="display:flex;align-items:center;gap:6px">
-              ${avatar(sub?.name||"?",sub?.color||"#888",22)}
-              <span style="font-size:12px;font-weight:600;color:#1e293b">${sub?.name}</span>
-              <span class="badge" style="background:#f1f5f9;color:#64748b">${e.category}</span>
-            </div>
-            <span style="font-size:14px;font-weight:700;color:#1e293b">R ${e.amount.toFixed(2)}</span>
-          </div>
-          <p style="font-size:13px;color:#334155;margin-bottom:6px">${e.description}</p>
-          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
-            <span style="font-size:11px;color:#94a3b8">${e.date} · <span style="color:${e.status==="recorded"?"#166534":"#92400e"};font-weight:500">${e.status==="recorded"?"✓ Recorded":"⏳ Pending"}</span></span>
-            <div style="display:flex;gap:6px">
-              ${canMark?`<button onclick="markExpense('${wid}',${e.id})" style="font-size:11px;padding:2px 8px;background:#059669;color:#fff;border:none;border-radius:4px">Mark recorded</button>`:""}
-              ${canDel?`<button onclick="deleteExpense('${wid}',${e.id})" style="font-size:11px;padding:2px 8px;color:#dc2626;border-color:#fca5a5;background:#fff1f2;border-radius:4px">Delete</button>`:""}
-            </div>
-          </div>
-        </div>`;
-      }).join("");
-  const totalRow=expenses.length>0?`<div style="text-align:right;padding-top:4px;border-top:0.5px solid #e2e8f0;font-size:13px;font-weight:600;color:#1e293b">Total: R ${total.toFixed(2)}</div>`:"";
-  const catOptions=CATS.map(c=>`<option value="${c}">${c.charAt(0).toUpperCase()+c.slice(1)}</option>`).join("");
-  const inputArea=currentUser
-    ?`<div style="border-top:0.5px solid #e2e8f0;padding-top:12px;display:flex;flex-direction:column;gap:8px">
-        <p style="font-size:12px;font-weight:600;color:#1e293b">Log an expense</p>
-        <div style="display:flex;gap:8px">
-          <input type="number" id="exp-amount" min="0" step="0.01" placeholder="Amount (R)" style="width:110px"/>
-          <select id="exp-cat" style="flex:1">${catOptions}</select>
-        </div>
-        <div style="display:flex;gap:8px">
-          <input type="text" id="exp-desc" placeholder="Description (e.g. Petrol on the way up)" style="flex:1"/>
-          <button onclick="postExpense('${wid}')" style="font-size:13px;padding:0 14px;background:#D97706;color:#fff;border:none;border-radius:6px;font-weight:500;flex-shrink:0">Log</button>
-        </div>
-      </div>`
-    :`<p style="font-size:12px;color:#64748b;text-align:center;padding-top:8px;border-top:0.5px solid #e2e8f0">Sign in to log an expense.</p>`;
-  openModal(`<div class="modal wide">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
-      <p style="font-weight:600;font-size:15px;color:#1e293b">💰 Expenses</p>
-      <button onclick="closeModal()">Close</button>
-    </div>
-    <p style="font-size:12px;color:#64748b;margin-bottom:12px">${fmt(w.date)}</p>
-    <div style="max-height:260px;overflow-y:auto;margin-bottom:4px">${rows}${totalRow}</div>
-    ${inputArea}
-  </div>`);
-  setTimeout(()=>{
-    const el=document.getElementById("exp-desc");
-    if(el)el.addEventListener("keydown",e=>{if(e.key==="Enter")postExpense(wid);});
-  },50);
-}
-
-async function postExpense(wid){
-  const amount=parseFloat(document.getElementById("exp-amount")?.value||"0");
-  const desc=(document.getElementById("exp-desc")?.value||"").trim();
-  const cat=document.getElementById("exp-cat")?.value||"general";
-  if(!amount||!desc||!currentUser){showToast("Please fill in amount and description.","err");return;}
-  const existing=getS(wid).expenses||[];
-  const ne={id:Date.now(),submittedBy:currentUser,amount,description:desc,category:cat,date:new Date().toLocaleString("en-ZA",{day:"numeric",month:"short",year:"numeric"}),status:"pending"};
-  await patchState(wid,{expenses:[...existing,ne]});
-  closeModal();showToast("Expense logged — Steve will record it.");
-}
-
-async function deleteExpense(wid,eid){
-  const existing=getS(wid).expenses||[];
-  await patchState(wid,{expenses:existing.filter(e=>e.id!==eid)});
-  closeModal();
-}
-
-async function markExpense(wid,eid){
-  const existing=getS(wid).expenses||[];
-  await patchState(wid,{expenses:existing.map(e=>e.id===eid?{...e,status:"recorded"}:e)});
-  closeModal();showToast("Marked as recorded.");
-}
-
-function adminModal(){
-  const rows=OWNERS.map(o=>`
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-      ${avatar(o.name,o.color,32)}
-      <span style="font-size:13px;font-weight:500;color:#1e293b;flex:1;min-width:110px">${o.name}</span>
-      <input type="text" id="pin-${o.id}" maxlength="4" placeholder="New PIN" style="width:80px;font-size:14px;text-align:center;letter-spacing:4px;padding:5px 8px"/>
-      <button onclick="doSavePin('${o.id}')" style="font-size:12px;padding:5px 10px;background:#4F46E5;color:#fff;border:none;border-radius:6px;font-weight:500;flex-shrink:0">Save</button>
-    </div>`).join("");
-  const current=OWNERS.map(o=>`${o.name.split(" ")[0]}: ${PINS[o.id]||"—"}`).join(" · ");
-  openModal(`<div class="modal wide">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-      <p style="font-weight:600;font-size:15px;color:#1e293b">⚙ Admin — Manage PINs</p>
-      <button onclick="closeModal()">Close</button>
-    </div>
-    <p style="font-size:12px;color:#64748b;margin-bottom:16px">Set or update each partner's 4-digit PIN.</p>
-    ${rows}
-    <p style="font-size:11px;color:#94a3b8;margin-top:8px">Current: ${current}</p>
-  </div>`);
-}
-
-async function doSavePin(oid){
-  const val=(document.getElementById("pin-"+oid)?.value||"").trim();
-  if(!val||val.length!==4||!/^\d{4}$/.test(val)){showToast("PIN must be exactly 4 digits.","err");return;}
-  const updated={...PINS,[oid]:val};
-  await savePins(updated);
-  showToast("PIN updated for "+OWNERS.find(o=>o.id===oid).name+"!");
-  closeModal();
-}
-
-function handlePillClick(oid){
-  if(currentUser===oid){currentUser=null;render();}else{loginModal(oid);}
-}
-
-function emptyMsg(msg){
-  return `<div class="empty"><div style="font-size:28px;margin-bottom:8px">🎣</div><p>${msg}</p></div>`;
-}
-
-function weekendCard(w,isAvailTab){
-  isAvailTab=isAvailTab||false;
-  const s=getS(w.id);
-  const effId=effOwner(w.id);
-  const eff=OWNERS.find(o=>o.id===effId);
-  const isMe=currentUser===effId;
-  const ph=nearHoliday(w.date);
-  const commentCount=(s.comments||[]).length;
-  const expCount=(s.expenses||[]).filter(e=>e.status==="pending").length;
-  const wasRealloc=s.reallocTo&&s.reallocTo!==w.origOwner&&!s.available;
-  const wasClaimed=s.claimedBy&&!s.reallocTo&&!s.available;
-  const badges=[
-    ph?`<span class="badge" style="background:#fef9c3;color:#854d0e">🎉 ${ph}</span>`:"",
-    wasRealloc?`<span class="badge" style="background:#dbeafe;color:#1e40af">Reallocated</span>`:"",
-    wasClaimed?`<span class="badge" style="background:#dbeafe;color:#1e40af">Claimed</span>`:"",
-    s.available?`<span class="badge" style="background:#dcfce7;color:#166534">🟢 Available</span>`:""
-  ].filter(Boolean).join(" ");
-  let actions="";
-  if(isAvailTab&&s.available){
-    actions=currentUser
-      ?`<button onclick="doClaim('${w.id}')" style="font-size:12px;padding:6px 12px;background:#059669;color:#fff;border:none;font-weight:500">🎣 Claim</button>`
-      :`<span style="font-size:12px;color:#64748b">Sign in to claim</span>`;
-  } else if(isMe&&currentUser&&!s.available){
-    actions=`
-      <button onclick="setGoing('${w.id}',true)" style="font-size:12px;padding:5px 9px;background:${s.going===true?"#dcfce7":"transparent"};color:${s.going===true?"#166534":"#64748b"};border-color:${s.going===true?"#86efac":"#cbd5e1"}">✓ Going</button>
-      <button onclick="setGoing('${w.id}',false)" style="font-size:12px;padding:5px 9px;background:${s.going===false&&!s.available?"#fee2e2":"transparent"};color:${s.going===false&&!s.available?"#991b1b":"#64748b"};border-color:${s.going===false&&!s.available?"#fca5a5":"#cbd5e1"}">✗ Can't make it</button>
-      <button onclick="reallocModal('${w.id}')" style="font-size:12px;padding:5px 9px;background:#f5f3ff;color:#4f46e5;border-color:#a5b4fc">↪ Reallocate</button>
-      <button onclick="availModal('${w.id}')" style="font-size:12px;padding:5px 9px;background:#f0fdf4;color:#166534;border-color:#86efac">🟢 Release</button>`;
-  } else {
-    const label=s.available?"🟢 Available":s.going===true?"✓ Going":s.going===false?"✗ Can't make it":"No response yet";
-    const bg=s.going===true?"#dcfce7":s.going===false?"#fee2e2":"#f1f5f9";
-    const col=s.going===true?"#166534":s.going===false?"#991b1b":"#64748b";
-    actions=`<span class="badge" style="background:${bg};color:${col};padding:3px 10px">${label}</span>`;
-  }
-  return `<div class="card" style="border-left:3px solid ${s.available?"#059669":eff?.color||"#888"}">
-    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-      <div style="flex:1;min-width:150px">
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px">
-          <span style="font-size:14px;font-weight:600">${fmt(w.date)}</span>${badges}
-        </div>
-        <div style="display:flex;align-items:center;gap:5px">
-          <div style="width:8px;height:8px;border-radius:50%;background:${eff?.color};flex-shrink:0"></div>
-          <span style="font-size:12px;color:#64748b">${eff?.name}</span>
-        </div>
-      </div>
-      <div class="card-actions" style="display:flex;gap:5px;align-items:center;flex-wrap:wrap">
-        ${actions}
-        <button onclick="commentModal('${w.id}')" style="font-size:12px;padding:5px 9px;background:${commentCount>0?"#eff6ff":"#f8fafc"};color:${commentCount>0?"#1d4ed8":"#475569"};border-color:${commentCount>0?"#93c5fd":"#cbd5e1"}">💬 ${commentCount>0?commentCount:"+"}</button>
-        <button onclick="expenseModal('${w.id}')" style="font-size:12px;padding:5px 9px;background:${expCount>0?"#fffbeb":"#f8fafc"};color:${expCount>0?"#92400e":"#475569"};border-color:${expCount>0?"#fcd34d":"#cbd5e1"}">💰 ${expCount>0?expCount:"+"}</button>
-      </div>
-    </div>
-  </div>`;
-}
-
-function forumTab(posts){
-  const rows=posts.length===0
-    ?`<div class="empty"><div style="font-size:28px;margin-bottom:8px">💬</div><p>No messages yet — start the conversation!</p></div>`
-    :[...posts].sort((a,b)=>b.id-a.id).map(p=>{
-        const author=OWNERS.find(o=>o.id===p.authorId);
-        const isOwn=p.authorId===currentUser;
-        return `<div class="card" style="border-left:3px solid ${author?.color||"#888"}">
-          <div style="display:flex;align-items:flex-start;gap:10px">
-            ${avatar(author?.name||"?",author?.color||"#888",32)}
-            <div style="flex:1">
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;flex-wrap:wrap;gap:4px">
-                <span style="font-size:13px;font-weight:600;color:#1e293b">${author?.name}</span>
-                <div style="display:flex;align-items:center;gap:8px">
-                  <span style="font-size:11px;color:#94a3b8">${p.time}</span>
-                  ${isOwn||currentUser===ADMIN_ID?`<button onclick="deleteForumPost(${p.id})" style="font-size:11px;padding:1px 6px;color:#dc2626;border-color:#fca5a5;background:#fff1f2">Delete</button>`:""}
-                </div>
-              </div>
-              <p style="font-size:14px;color:#334155;line-height:1.6;margin:0;white-space:pre-wrap">${p.text}</p>
-            </div>
-          </div>
-        </div>`;
-      }).join("");
-  const inputArea=currentUser
-    ?`<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:1rem;margin-bottom:1rem">
-        <p style="font-size:12px;font-weight:600;color:#1e293b;margin-bottom:8px">Post a message</p>
-        <textarea id="forum-text" placeholder="Write a message to all shareholders..." rows="3" style="width:100%;resize:none;font-size:14px;border:0.5px solid #cbd5e1;border-radius:6px;padding:10px;margin-bottom:8px"></textarea>
-        <button onclick="postForumMessage()" style="font-size:13px;padding:8px 20px;background:#4F46E5;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:500">Post message</button>
-      </div>`
-    :`<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:1rem;margin-bottom:1rem;text-align:center">
-        <p style="font-size:13px;color:#64748b">Sign in above to post a message to the group.</p>
-      </div>`;
-  return `<div>
-    <p style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:4px">Shareholder Forum</p>
-    <p style="font-size:12px;color:#64748b;margin-bottom:16px">A shared space for all partners to communicate</p>
-    ${inputArea}${rows}
-  </div>`;
-}
-
-async function postForumMessage(){
-  const el=document.getElementById("forum-text");
-  const text=(el?.value||"").trim();
-  if(!text||!currentUser){showToast("Sign in and write a message first.","err");return;}
-  const existing=STATE["__forum__"]||[];
-  const np={id:Date.now(),authorId:currentUser,text,time:new Date().toLocaleString("en-ZA",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"})};
-  STATE["__forum__"]=[...existing,np];
-  await stateRef.child("__forum__").set(STATE["__forum__"]);
-  showToast("Message posted!");render();
-}
-
-async function deleteForumPost(pid){
-  const existing=STATE["__forum__"]||[];
-  STATE["__forum__"]=existing.filter(p=>p.id!==pid);
-  await stateRef.child("__forum__").set(STATE["__forum__"]);
-  render();
-}
-
-function rulesTab(){
-  return `<div>
-    <p style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:4px">Farm Rules & Labour Tips</p>
-    <p style="font-size:12px;color:#64748b;margin-bottom:16px">Standard tipping guidelines for farm labour over weekends</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
-      <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:1rem">
-        <p style="font-size:12px;font-weight:600;color:#1e40af;margin-bottom:2px;text-transform:uppercase;letter-spacing:0.5px">1–8 People</p>
-        <p style="font-size:11px;color:#3b82f6;margin-bottom:12px">Smaller group weekend</p>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:6px;padding:8px 10px"><span style="font-size:13px;font-weight:500;color:#1e293b">Thomas</span><span style="font-size:14px;font-weight:700;color:#059669">R 300</span></div>
-          <div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:6px;padding:8px 10px"><span style="font-size:13px;font-weight:500;color:#1e293b">Simon</span><span style="font-size:14px;font-weight:700;color:#059669">R 300</span></div>
-          <div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:6px;padding:8px 10px"><span style="font-size:13px;font-weight:500;color:#1e293b">Sara</span><span style="font-size:14px;font-weight:700;color:#059669">R 400</span></div>
-        </div>
-        <div style="margin-top:10px;padding-top:10px;border-top:0.5px solid #BFDBFE;display:flex;justify-content:space-between"><span style="font-size:12px;color:#64748b">Total tips</span><span style="font-size:13px;font-weight:700;color:#1e40af">R 1 000</span></div>
-      </div>
-      <div style="background:#FEF3C7;border:1px solid #FDE68A;border-radius:10px;padding:1rem">
-        <p style="font-size:12px;font-weight:600;color:#92400e;margin-bottom:2px;text-transform:uppercase;letter-spacing:0.5px">8+ People</p>
-        <p style="font-size:11px;color:#d97706;margin-bottom:12px">Larger group weekend</p>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:6px;padding:8px 10px"><span style="font-size:13px;font-weight:500;color:#1e293b">Thomas</span><span style="font-size:14px;font-weight:700;color:#059669">R 300</span></div>
-          <div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:6px;padding:8px 10px"><span style="font-size:13px;font-weight:500;color:#1e293b">Simon</span><span style="font-size:14px;font-weight:700;color:#059669">R 300</span></div>
-          <div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:6px;padding:8px 10px"><span style="font-size:13px;font-weight:500;color:#1e293b">Sara</span><span style="font-size:14px;font-weight:700;color:#059669">R 300</span></div>
-          <div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:6px;padding:8px 10px"><span style="font-size:13px;font-weight:500;color:#1e293b">Sinah</span><span style="font-size:14px;font-weight:700;color:#059669">R 300</span></div>
-        </div>
-        <div style="margin-top:10px;padding-top:10px;border-top:0.5px solid #FDE68A;display:flex;justify-content:space-between"><span style="font-size:12px;color:#64748b">Total tips</span><span style="font-size:13px;font-weight:700;color:#92400e">R 1 200</span></div>
-      </div>
-    </div>
-    <div style="background:#F0FDF4;border:1px solid #86EFAC;border-radius:10px;padding:1rem">
-      <p style="font-size:12px;font-weight:600;color:#166534;margin-bottom:6px">💡 How to log tips as an expense</p>
-      <p style="font-size:13px;color:#15803d;line-height:1.6">After your weekend, go to your weekend in the <strong>All weekends</strong> tab, click the 💰 button, select category <strong>"Labour"</strong>, enter the total tip amount, and log it. Steve will see it under Expenses and record it against the farm accounts.</p>
-    </div>
-  </div>`;
-}
-
-function expensesTab(allExp){
-  const filtered=expFilter==="all"?allExp:allExp.filter(e=>e.status===expFilter);
-  const total=filtered.reduce((s,e)=>s+e.amount,0);
-  const pendingTotal=allExp.filter(e=>e.status==="pending").reduce((s,e)=>s+e.amount,0);
-  const filterBtns=["pending","recorded","all"].map(f=>`<button onclick="expFilter='${f}';render()" style="font-size:12px;padding:4px 10px;border-radius:20px;background:${expFilter===f?"#1e293b":"#f8fafc"};color:${expFilter===f?"#fff":"#64748b"};border-color:${expFilter===f?"#1e293b":"#cbd5e1"}">${f.charAt(0).toUpperCase()+f.slice(1)}</button>`).join("");
-  const rows=filtered.length===0
-    ?`<div class="empty">No ${expFilter} expenses found.</div>`
-    :[...filtered].sort((a,b)=>b.id-a.id).map(e=>{
-        const sub=OWNERS.find(o=>o.id===e.submittedBy);
-        const canMark=currentUser===ADMIN_ID&&e.status==="pending";
-        const canDel=e.submittedBy===currentUser||currentUser===ADMIN_ID;
-        return `<div class="card" style="border-left:3px solid ${sub?.color||"#888"};background:${e.status==="recorded"?"#f0fdf4":"#fff"}">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
-            <div style="display:flex;align-items:center;gap:6px">
-              ${avatar(sub?.name||"?",sub?.color||"#888",24)}
-              <span style="font-size:13px;font-weight:600;color:#1e293b">${sub?.name}</span>
-              <span class="badge" style="background:#f1f5f9;color:#64748b">${e.category}</span>
-            </div>
-            <span style="font-size:15px;font-weight:700;color:#1e293b">R ${e.amount.toFixed(2)}</span>
-          </div>
-          <p style="font-size:13px;color:#334155;margin-bottom:4px">${e.description}</p>
-          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
-            <div>
-              <span style="font-size:11px;color:#94a3b8">${fmt(e.weekend.date)} · ${e.date}</span>
-              <span style="margin-left:8px;font-size:11px;font-weight:500;color:${e.status==="recorded"?"#166534":"#92400e"}">${e.status==="recorded"?"✓ Recorded":"⏳ Pending"}</span>
-            </div>
-            <div style="display:flex;gap:6px">
-              ${canMark?`<button onclick="markExpense('${e.weekend.id}',${e.id})" style="font-size:11px;padding:3px 8px;background:#059669;color:#fff;border:none;border-radius:4px">Mark recorded</button>`:""}
-              ${canDel?`<button onclick="deleteExpense('${e.weekend.id}',${e.id})" style="font-size:11px;padding:3px 8px;color:#dc2626;border-color:#fca5a5;background:#fff1f2;border-radius:4px">Delete</button>`:""}
-            </div>
-          </div>
-        </div>`;
-      }).join("");
-  return `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
-    <div>
-      <p style="font-size:14px;font-weight:600;color:#1e293b">Farm expense claims</p>
-      <p style="font-size:12px;color:#64748b;margin-top:2px">All expenses submitted by shareholders</p>
-    </div>
-    <div style="display:flex;gap:6px">${filterBtns}</div>
-  </div>
-  <div class="summary-grid">
-    <div class="summary-card" style="background:#fffbeb;border:1px solid #fcd34d"><p style="font-size:11px;color:#92400e">Pending claims</p><p style="font-size:20px;font-weight:600;color:#92400e;margin-top:4px">R ${pendingTotal.toFixed(2)}</p></div>
-    <div class="summary-card" style="background:#f0fdf4;border:1px solid #86efac"><p style="font-size:11px;color:#166534">Showing total</p><p style="font-size:20px;font-weight:600;color:#166534;margin-top:4px">R ${total.toFixed(2)}</p></div>
-  </div>
-  ${rows}`;
-}
-
-function render(){
-  if(showCover){renderCover();return;}
-  const availList=ALL_WEEKENDS.filter(w=>getS(w.id).available&&w.date>=today);
-  const mineList=currentUser?ALL_WEEKENDS.filter(w=>effOwner(w.id)===currentUser&&w.date>=today):[];
-  const allExp=ALL_WEEKENDS.flatMap(w=>(getS(w.id).expenses||[]).map(e=>({...e,weekend:w})));
-  const pendingExpCount=allExp.filter(e=>e.status==="pending").length;
-  const forumPosts=STATE["__forum__"]||[];
-  const filteredList=ALL_WEEKENDS.filter(w=>{
-    if(w.date<today)return false;
-    if(filterOwner!=="all"&&effOwner(w.id)!==filterOwner)return false;
-    if(filterYear!=="all"&&!w.date.startsWith(filterYear))return false;
-    return true;
-  });
-  const ownerObj=OWNERS.find(o=>o.id===currentUser);
-  const pills=OWNERS.map(o=>`<button class="pill" onclick="handlePillClick('${o.id}')" style="background:${currentUser===o.id?o.color:"transparent"};color:${currentUser===o.id?"#fff":"#64748b"};border-color:${currentUser===o.id?o.color:"#cbd5e1"}">${o.name.split(" ")[0]}</button>`).join("");
-  const userBar=currentUser?`<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">${avatar(ownerObj.name,ownerObj.color,30)}<span style="font-size:13px;font-weight:600">${ownerObj.name}</span>${currentUser===ADMIN_ID?`<button onclick="adminModal()" style="font-size:12px;padding:3px 8px;background:#fef3c7;color:#92400e;border:0.5px solid #fcd34d">⚙ Admin</button>`:""}<button onclick="currentUser=null;showCover=true;renderCover()" style="font-size:12px;padding:3px 8px">Sign out</button></div>`:"";
-  function tabBtn(id,label){return`<button class="tab${currentTab===id?" active":""}" onclick="currentTab='${id}';render()">${label}</button>`;}
-  let tabContent="";
-  if(currentTab==="all"){
-    const yearOpts=["2025","2026","2027","2028","2029","2030"].map(y=>`<option value="${y}"${filterYear===y?" selected":""}>${y}</option>`).join("");
-    const ownerOpts=OWNERS.map(o=>`<option value="${o.id}"${filterOwner===o.id?" selected":""}>${o.name}</option>`).join("");
-    tabContent=`<div class="filters"><select onchange="filterOwner=this.value;render()"><option value="all">All owners</option>${ownerOpts}</select><select onchange="filterYear=this.value;render()"><option value="all">All years</option>${yearOpts}</select><span style="font-size:12px;color:#64748b">${filteredList.length} weekends</span></div>${filteredList.map(w=>weekendCard(w)).join("")}`;
-  } else if(currentTab==="mine"){
-    tabContent=currentUser?mineList.length?mineList.map(w=>weekendCard(w)).join(""):emptyMsg("No upcoming weekends assigned to you."):emptyMsg("Tap your name above to sign in.");
-  } else if(currentTab==="avail"){
-    tabContent=availList.length?`<p style="font-size:13px;color:#64748b;margin-bottom:12px">Released weekends — sign in and claim one before someone else does!</p>`+availList.map(w=>weekendCard(w,true)).join(""):emptyMsg("No weekends available right now. Check back soon!");
-  } else if(currentTab==="expenses"){
-    tabContent=expensesTab(allExp);
-  } else if(currentTab==="forum"){
-    tabContent=forumTab(forumPosts);
-  } else if(currentTab==="rules"){
-    tabContent=rulesTab();
-  }
-  document.getElementById("app").innerHTML=`<div class="header"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px;flex-wrap:wrap"><div><h1>🎣 The Faithful Hound Trout Farm</h1><div class="header-sub"><span>Weekend allocation · 2025–2030</span><span class="live ${syncing?"saving":"ok"}">${syncing?"⟳ Saving...":lastSync?"✓ Live":""}</span></div></div>${userBar}</div><div class="owner-pills">${pills}</div><div class="tabs">${tabBtn("all","All weekends")}${tabBtn("mine","My weekends"+(currentUser?` (${mineList.length})` :""))}${tabBtn("avail","Available"+(availList.length>0?` · ${availList.length}`:""))}${tabBtn("expenses","Expenses"+(pendingExpCount>0?` · ${pendingExpCount}`:""))}${tabBtn("forum","Forum")}${tabBtn("rules","Rules")}</div></div><div class="content">${tabContent}</div>`;
-}
-
+function handlePillClick(oid){if(currentUser===oid){currentUser=null;render();}else loginModal(oid);}
+function emptyMsg(msg){return'<div class="empty"><div style="font-size:28px;margin-bottom:8px">&#127843;</div><p>'+msg+'</p></div>';}
+function commentModal(wid){const w=ALL_WEEKENDS.find(x=>x.id===wid);const s=getS(wid);const comments=s.comments||[];const rows=comments.length===0?'<p style="font-size:13px;color:#94a3b8;text-align:center;padding:1rem 0">No messages yet!</p>':comments.map(c=>{const author=OWNERS.find(o=>o.id===c.authorId);const canDel=c.authorId===currentUser;return'<div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:8px">'+avatar(author?author.name:"?",author?author.color:"#888",28)+'<div style="flex:1;background:#f8fafc;border:0.5px solid #e2e8f0;border-radius:8px;padding:8px 10px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px"><span style="font-size:12px;font-weight:600;color:#1e293b">'+(author?author.name:"")+'</span><div style="display:flex;gap:6px;align-items:center"><span style="font-size:11px;color:#94a3b8">'+c.time+'</span>'+(canDel?'<button onclick="deleteComment(\''+wid+'\','+c.id+')" style="font-size:11px;padding:1px 6px;color:#dc2626;border-color:#fca5a5;background:#fff1f2">X</button>':'')+'</div></div><p style="font-size:13px;color:#334155;line-height:1.5;margin:0">'+c.text+'</p></div></div>';}).join("");const inp=currentUser?'<div style="display:flex;gap:8px;border-top:0.5px solid #e2e8f0;padding-top:12px;margin-top:4px"><textarea id="comment-text" placeholder="Leave a note..." rows="2" style="flex:1;resize:none;font-size:13px;border:0.5px solid #cbd5e1;border-radius:6px;padding:8px 10px"></textarea><button onclick="postComment(\''+wid+'\')" style="font-size:13px;padding:0 14px;background:#4F46E5;color:#fff;border:none;font-weight:500;align-self:stretch;border-radius:6px">Post</button></div>':'<p style="font-size:12px;color:#64748b;text-align:center;padding-top:8px;border-top:0.5px solid #e2e8f0">Sign in to comment.</p>';openModal('<div class="modal"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px"><p style="font-weight:600;font-size:15px;color:#1e293b">Comments</p><button onclick="closeModal()">Close</button></div><p style="font-size:12px;color:#64748b;margin-bottom:12px">'+fmt(w.date)+'</p><div style="max-height:260px;overflow-y:auto;margin-bottom:4px">'+rows+'</div>'+inp+'</div>');setTimeout(()=>{const ta=document.getElementById("comment-text");if(ta)ta.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();postComment(wid);}});},50);}
+async function postComment(wid){const el=document.getElementById("comment-text");const text=el?el.value.trim():"";if(!text||!currentUser)return;const existing=getS(wid).comments||[];await patchState(wid,{comments:[...existing,{id:Date.now(),authorId:currentUser,text,time:new Date().toLocaleString("en-ZA",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}]});closeModal();showToast("Comment posted!");}
+async function deleteComment(wid,cid){await patchState(wid,{comments:(getS(wid).comments||[]).filter(c=>c.id!==cid)});closeModal();}
+function expenseModal(wid){const w=ALL_WEEKENDS.find(x=>x.id===wid);const s=getS(wid);const expenses=s.expenses||[];const total=expenses.reduce((sum,e)=>sum+e.amount,0);const rows=expenses.length===0?'<p style="font-size:13px;color:#94a3b8;text-align:center;padding:1rem 0">No expenses logged yet.</p>':expenses.map(e=>{const sub=OWNERS.find(o=>o.id===e.submittedBy);const canDel=e.submittedBy===currentUser||currentUser===ADMIN_ID;const canMark=currentUser===ADMIN_ID&&e.status==="pending";return'<div class="expense-row" style="background:'+(e.status==="recorded"?"#f0fdf4":"#fffbeb")+';border:1px solid '+(e.status==="recorded"?"#86efac":"#fcd34d")+'"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px"><div style="display:flex;align-items:center;gap:6px">'+avatar(sub?sub.name:"?",sub?sub.color:"#888",22)+'<span style="font-size:12px;font-weight:600;color:#1e293b">'+(sub?sub.name:"")+'</span><span class="badge" style="background:#f1f5f9;color:#64748b">'+e.category+'</span></div><span style="font-size:14px;font-weight:700;color:#1e293b">R '+e.amount.toFixed(2)+'</span></div><p style="font-size:13px;color:#334155;margin-bottom:6px">'+e.description+'</p><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px"><span style="font-size:11px;color:#94a3b8">'+e.date+' - '+(e.status==="recorded"?"Recorded":"Pending")+'</span><div style="display:flex;gap:6px">'+(canMark?'<button onclick="markExpense(\''+wid+'\','+e.id+')" style="font-size:11px;padding:2px 8px;background:#059669;color:#fff;border:none;border-radius:4px">Mark recorded</button>':'')+(canDel?'<button onclick="deleteExpense(\''+wid+'\','+e.id+')" style="font-size:11px;padding:2px 8px;color:#dc2626;border-color:#fca5a5;background:#fff1f2;border-radius:4px">Delete</button>':'')+'</div></div></div>';}).join("");const totalRow=expenses.length>0?'<div style="text-align:right;padding-top:4px;border-top:0.5px solid #e2e8f0;font-size:13px;font-weight:600;color:#1e293b">Total: R '+total.toFixed(2)+'</div>':"";const catOpts=CATS.map(c=>'<option value="'+c+'">'+c.charAt(0).toUpperCase()+c.slice(1)+'</option>').join("");const inp=currentUser?'<div style="border-top:0.5px solid #e2e8f0;padding-top:12px;display:flex;flex-direction:column;gap:8px"><p style="font-size:12px;font-weight:600;color:#1e293b">Log an expense</p><div style="display:flex;gap:8px"><input type="number" id="exp-amount" min="0" step="0.01" placeholder="Amount (R)" style="width:110px"/><select id="exp-cat" style="flex:1">'+catOpts+'</select></div><div style="display:flex;gap:8px"><input type="text" id="exp-desc" placeholder="Description" style="flex:1"/><button onclick="postExpense(\''+wid+'\')" style="font-size:13px;padding:0 14px;background:#D97706;color:#fff;border:none;border-radius:6px;font-weight:500;flex-shrink:0">Log</button></div></div>':'<p style="font-size:12px;color:#64748b;text-align:center;padding-top:8px;border-top:0.5px solid #e2e8f0">Sign in to log an expense.</p>';openModal('<div class="modal wide"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px"><p style="font-weight:600;font-size:15px;color:#1e293b">Expenses</p><button onclick="closeModal()">Close</button></div><p style="font-size:12px;color:#64748b;margin-bottom:12px">'+fmt(w.date)+'</p><div style="max-height:260px;overflow-y:auto;margin-bottom:4px">'+rows+totalRow+'</div>'+inp+'</div>');setTimeout(()=>{const el=document.getElementById("exp-desc");if(el)el.addEventListener("keydown",e=>{if(e.key==="Enter")postExpense(wid);});},50);}
+async function postExpense(wid){const amount=parseFloat(document.getElementById("exp-amount")?document.getElementById("exp-amount").value:"0");const desc=document.getElementById("exp-desc")?document.getElementById("exp-desc").value.trim():"";const cat=document.getElementById("exp-cat")?document.getElementById("exp-cat").value:"general";if(!amount||!desc||!currentUser){showToast("Please fill in amount and description.","err");return;}await patchState(wid,{expenses:[...(getS(wid).expenses||[]),{id:Date.now(),submittedBy:currentUser,amount,description:desc,category:cat,date:new Date().toLocaleString("en-ZA",{day:"numeric",month:"short",year:"numeric"}),status:"pending"}]});closeModal();showToast("Expense logged!");}
+async function deleteExpense(wid,eid){await patchState(wid,{expenses:(getS(wid).expenses||[]).filter(e=>e.id!==eid)});closeModal();}
+async function markExpense(wid,eid){await patchState(wid,{expenses:(getS(wid).expenses||[]).map(e=>e.id===eid?{...e,status:"recorded"}:e)});closeModal();showToast("Marked as recorded.");}
+function adminModal(){const rows=OWNERS.map(o=>'<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">'+avatar(o.name,o.color,32)+'<span style="font-size:13px;font-weight:500;color:#1e293b;flex:1;min-width:110px">'+o.name+'</span><input type="text" id="pin-'+o.id+'" maxlength="4" placeholder="New PIN" style="width:80px;font-size:14px;text-align:center;letter-spacing:4px;padding:5px 8px"/><button onclick="doSavePin(\''+o.id+'\')" style="font-size:12px;padding:5px 10px;background:#4F46E5;color:#fff;border:none;border-radius:6px;font-weight:500;flex-shrink:0">Save</button></div>').join("");const current=OWNERS.map(o=>o.name.split(" ")[0]+": "+(PINS[o.id]||"?")).join(" - ");openModal('<div class="modal wide"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><p style="font-weight:600;font-size:15px;color:#1e293b">Admin - Manage PINs</p><button onclick="closeModal()">Close</button></div><p style="font-size:12px;color:#64748b;margin-bottom:16px">Set or update each partner\'s 4-digit PIN.</p>'+rows+'<p style="font-size:11px;color:#94a3b8;margin-top:8px">Current: '+current+'</p></div>');}
+async function doSavePin(oid){const el=document.getElementById("pin-"+oid);const val=el?el.value.trim():"";if(!val||val.length!==4||!/^\d{4}$/.test(val)){showToast("PIN must be exactly 4 digits.","err");return;}const updated={...PINS,[oid]:val};await savePins(updated);showToast("PIN updated for "+OWNERS.find(o=>o.id===oid).name+"!");closeModal();}
+function weekendCard(w,isAvailTab){isAvailTab=isAvailTab||false;const s=getS(w.id);const effId=effOwner(w.id);const eff=OWNERS.find(o=>o.id===effId);const isMe=currentUser===effId;const ph=nearHoliday(w.date);const cc=(s.comments||[]).length;const ec=(s.expenses||[]).filter(e=>e.status==="pending").length;const wasR=s.reallocTo&&s.reallocTo!==w.origOwner&&!s.available;const wasC=s.claimedBy&&!s.reallocTo&&!s.available;const badges=[ph?'<span class="badge" style="background:#fef9c3;color:#854d0e">'+ph+'</span>':"",wasR?'<span class="badge" style="background:#dbeafe;color:#1e40af">Reallocated</span>':"",wasC?'<span class="badge" style="background:#dbeafe;color:#1e40af">Claimed</span>':"",s.available?'<span class="badge" style="background:#dcfce7;color:#166534">Available</span>':""].filter(Boolean).join(" ");let actions="";if(isAvailTab&&s.available){actions=currentUser?'<button onclick="doClaim(\''+w.id+'\')" style="font-size:12px;padding:6px 12px;background:#059669;color:#fff;border:none;font-weight:500">Claim</button>':'<span style="font-size:12px;color:#64748b">Sign in to claim</span>';}else if(isMe&&currentUser&&!s.available){actions='<button onclick="setGoing(\''+w.id+'\',true)" style="font-size:12px;padding:5px 9px;background:'+(s.going===true?"#dcfce7":"transparent")+';color:'+(s.going===true?"#166534":"#64748b")+';border-color:'+(s.going===true?"#86efac":"#cbd5e1")+'">Going</button><button onclick="setGoing(\''+w.id+'\',false)" style="font-size:12px;padding:5px 9px;background:'+(s.going===false&&!s.available?"#fee2e2":"transparent")+';color:'+(s.going===false&&!s.available?"#991b1b":"#64748b")+';border-color:'+(s.going===false&&!s.available?"#fca5a5":"#cbd5e1")+'">Can\'t make it</button><button onclick="reallocModal(\''+w.id+'\')" style="font-size:12px;padding:5px 9px;background:#f5f3ff;color:#4f46e5;border-color:#a5b4fc">Reallocate</button><button onclick="availModal(\''+w.id+'\')" style="font-size:12px;padding:5px 9px;background:#f0fdf4;color:#166534;border-color:#86efac">Release</button>';}else{const label=s.available?"Available":s.going===true?"Going":s.going===false?"Can\'t make it":"No response";const bg=s.going===true?"#dcfce7":s.going===false?"#fee2e2":"#f1f5f9";const col=s.going===true?"#166534":s.going===false?"#991b1b":"#64748b";actions='<span class="badge" style="background:'+bg+';color:'+col+';padding:3px 10px">'+label+'</span>';}return'<div class="card" style="border-left:3px solid '+(s.available?"#059669":eff?eff.color:"#888")+'"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><div style="flex:1;min-width:150px"><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px"><span style="font-size:14px;font-weight:600">'+fmt(w.date)+'</span>'+badges+'</div><div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:50%;background:'+(eff?eff.color:"#888")+';flex-shrink:0"></div><span style="font-size:12px;color:#64748b">'+(eff?eff.name:"")+'</span></div></div><div class="card-actions" style="display:flex;gap:5px;align-items:center;flex-wrap:wrap">'+actions+'<button onclick="commentModal(\''+w.id+'\')" style="font-size:12px;padding:5px 9px;background:'+(cc>0?"#eff6ff":"#f8fafc")+';color:'+(cc>0?"#1d4ed8":"#475569")+';border-color:'+(cc>0?"#93c5fd":"#cbd5e1")+'">&#128172; '+(cc>0?cc:"+")+'</button><button onclick="expenseModal(\''+w.id+'\')" style="font-size:12px;padding:5px 9px;background:'+(ec>0?"#fffbeb":"#f8fafc")+';color:'+(ec>0?"#92400e":"#475569")+';border-color:'+(ec>0?"#fcd34d":"#cbd5e1")+'">&#128176; '+(ec>0?ec:"+")+'</button></div></div></div>';}
+function forumTab(posts){const rows=posts.length===0?'<div class="empty"><div style="font-size:28px;margin-bottom:8px">&#128172;</div><p>No messages yet - start the conversation!</p></div>':[...posts].sort((a,b)=>b.id-a.id).map(p=>{const author=OWNERS.find(o=>o.id===p.authorId);const isOwn=p.authorId===currentUser;return'<div class="card" style="border-left:3px solid '+(author?author.color:"#888")+'"><div style="display:flex;align-items:flex-start;gap:10px">'+avatar(author?author.name:"?",author?author.color:"#888",32)+'<div style="flex:1"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;flex-wrap:wrap;gap:4px"><span style="font-size:13px;font-weight:600;color:#1e293b">'+(author?author.name:"")+'</span><div style="display:flex;align-items:center;gap:8px"><span style="font-size:11px;color:#94a3b8">'+p.time+'</span>'+(isOwn||currentUser===ADMIN_ID?'<button onclick="deleteForumPost('+p.id+')" style="font-size:11px;padding:1px 6px;color:#dc2626;border-color:#fca5a5;background:#fff1f2">Delete</button>':"")+'</div></div><p style="font-size:14px;color:#334155;line-height:1.6;margin:0;white-space:pre-wrap">'+p.text+'</p></div></div></div>';}).join("");const inp=currentUser?'<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:1rem;margin-bottom:1rem"><p style="font-size:12px;font-weight:600;color:#1e293b;margin-bottom:8px">Post a message</p><textarea id="forum-text" placeholder="Write a message to all shareholders..." rows="3" style="width:100%;resize:none;font-size:14px;border:0.5px solid #cbd5e1;border-radius:6px;padding:10px;margin-bottom:8px"></textarea><button onclick="postForumMessage()" style="font-size:13px;padding:8px 20px;background:#4F46E5;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:500">Post message</button></div>':'<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:1rem;margin-bottom:1rem;text-align:center"><p style="font-size:13px;color:#64748b">Sign in to post a message.</p></div>';return'<div><p style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:4px">Shareholder Forum</p><p style="font-size:12px;color:#64748b;margin-bottom:16px">A shared space for all partners to communicate</p>'+inp+rows+'</div>';}
+async function postForumMessage(){const el=document.getElementById("forum-text");const text=el?el.value.trim():"";if(!text||!currentUser){showToast("Sign in and write a message first.","err");return;}const existing=STATE["__forum__"]||[];STATE["__forum__"]=[...existing,{id:Date.now(),authorId:currentUser,text,time:new Date().toLocaleString("en-ZA",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"})}];await stateRef.child("__forum__").set(STATE["__forum__"]);showToast("Message posted!");render();}
+async function deleteForumPost(pid){STATE["__forum__"]=(STATE["__forum__"]||[]).filter(p=>p.id!==pid);await stateRef.child("__forum__").set(STATE["__forum__"]);render();}
+function rulesTab(){return'<div><p style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:4px">Farm Rules and Labour Tips</p><p style="font-size:12px;color:#64748b;margin-bottom:16px">Standard tipping guidelines for farm labour over weekends</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px"><div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:1rem"><p style="font-size:12px;font-weight:600;color:#1e40af;margin-bottom:2px;text-transform:uppercase">1 to 8 People</p><p style="font-size:11px;color:#3b82f6;margin-bottom:12px">Smaller group</p><div style="display:flex;flex-direction:column;gap:8px"><div style="display:flex;justify-content:space-between;background:#fff;border-radius:6px;padding:8px 10px"><span style="font-size:13px;font-weight:500">Thomas</span><span style="font-size:14px;font-weight:700;color:#059669">R 300</span></div><div style="display:flex;justify-content:space-between;background:#fff;border-radius:6px;padding:8px 10px"><span style="font-size:13px;font-weight:500">Simon</span><span style="font-size:14px;font-weight:700;color:#059669">R 300</span></div><div style="display:flex;justify-content:space-between;background:#fff;border-radius:6px;padding:8px 10px"><span style="font-size:13px;font-weight:500">Sara</span><span style="font-size:14px;font-weight:700;color:#059669">R 400</span></div></div><div style="margin-top:10px;padding-top:10px;border-top:0.5px solid #BFDBFE;display:flex;justify-content:space-between"><span style="font-size:12px;color:#64748b">Total</span><span style="font-size:13px;font-weight:700;color:#1e40af">R 1 000</span></div></div><div style="background:#FEF3C7;border:1px solid #FDE68A;border-radius:10px;padding:1rem"><p style="font-size:12px;font-weight:600;color:#92400e;margin-bottom:2px;text-transform:uppercase">8+ People</p><p style="font-size:11px;color:#d97706;margin-bottom:12px">Larger group</p><div style="display:flex;flex-direction:column;gap:8px"><div style="display:flex;justify-content:space-between;background:#fff;border-radius:6px;padding:8px 10px"><span style="font-size:13px;font-weight:500">Thomas</span><span style="font-size:14px;font-weight:700;color:#059669">R 300</span></div><div style="display:flex;justify-content:space-between;background:#fff;border-radius:6px;padding:8px 10px"><span style="font-size:13px;font-weight:500">Simon</span><span style="font-size:14px;font-weight:700;color:#059669">R 300</span></div><div style="display:flex;justify-content:space-between;background:#fff;border-radius:6px;padding:8px 10px"><span style="font-size:13px;font-weight:500">Sara</span><span style="font-size:14px;font-weight:700;color:#059669">R 300</span></div><div style="display:flex;justify-content:space-between;background:#fff;border-radius:6px;padding:8px 10px"><span style="font-size:13px;font-weight:500">Sinah</span><span style="font-size:14px;font-weight:700;color:#059669">R 300</span></div></div><div style="margin-top:10px;padding-top:10px;border-top:0.5px solid #FDE68A;display:flex;justify-content:space-between"><span style="font-size:12px;color:#64748b">Total</span><span style="font-size:13px;font-weight:700;color:#92400e">R 1 200</span></div></div></div><div style="background:#F0FDF4;border:1px solid #86EFAC;border-radius:10px;padding:1rem;margin-bottom:16px"><p style="font-size:12px;font-weight:600;color:#166534;margin-bottom:6px">How to log tips as an expense</p><p style="font-size:13px;color:#15803d;line-height:1.6">After your weekend, click the expenses button on your weekend, select Labour, enter the total tip amount and log it. Steve will record it against the farm accounts.</p></div><p style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:10px;margin-top:4px">WiFi</p><div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:1rem"><div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:6px;padding:10px 12px;margin-bottom:8px"><span style="font-size:13px;color:#334155">Network</span><span style="font-size:13px;font-weight:600;color:#1e293b">Vodacom</span></div><div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:6px;padding:10px 12px;margin-bottom:8px"><span style="font-size:13px;color:#334155">Type</span><span style="font-size:13px;font-weight:600;color:#1e293b">Top up SIM card</span></div><div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:6px;padding:10px 12px"><span style="font-size:13px;color:#334155">Number to top up</span><a href="tel:0716036175" style="font-size:14px;font-weight:700;color:#1d4ed8;text-decoration:none">071 603 6175</a></div></div></div>';}
+function expensesTab(allExp){const filtered=expFilter==="all"?allExp:allExp.filter(e=>e.status===expFilter);const total=filtered.reduce((s,e)=>s+e.amount,0);const pendingTotal=allExp.filter(e=>e.status==="pending").reduce((s,e)=>s+e.amount,0);const fBtns=["pending","recorded","all"].map(f=>'<button onclick="expFilter=\''+f+'\';render()" style="font-size:12px;padding:4px 10px;border-radius:20px;background:'+(expFilter===f?"#1e293b":"#f8fafc")+';color:'+(expFilter===f?"#fff":"#64748b")+';border-color:'+(expFilter===f?"#1e293b":"#cbd5e1")+'">'+f.charAt(0).toUpperCase()+f.slice(1)+'</button>').join("");const rows=filtered.length===0?'<div class="empty">No '+expFilter+' expenses found.</div>':[...filtered].sort((a,b)=>b.id-a.id).map(e=>{const sub=OWNERS.find(o=>o.id===e.submittedBy);const canMark=currentUser===ADMIN_ID&&e.status==="pending";const canDel=e.submittedBy===currentUser||currentUser===ADMIN_ID;return'<div class="card" style="border-left:3px solid '+(sub?sub.color:"#888")+';background:'+(e.status==="recorded"?"#f0fdf4":"#fff")+'"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px"><div style="display:flex;align-items:center;gap:6px">'+avatar(sub?sub.name:"?",sub?sub.color:"#888",24)+'<span style="font-size:13px;font-weight:600;color:#1e293b">'+(sub?sub.name:"")+'</span><span class="badge" style="background:#f1f5f9;color:#64748b">'+e.category+'</span></div><span style="font-size:15px;font-weight:700;color:#1e293b">R '+e.amount.toFixed(2)+'</span></div><p style="font-size:13px;color:#334155;margin-bottom:4px">'+e.description+'</p><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px"><div><span style="font-size:11px;color:#94a3b8">'+fmt(e.weekend.date)+' - '+e.date+'</span><span style="margin-left:8px;font-size:11px;font-weight:500;color:'+(e.status==="recorded"?"#166534":"#92400e")+'">'+(e.status==="recorded"?"Recorded":"Pending")+'</span></div><div style="display:flex;gap:6px">'+(canMark?'<button onclick="markExpense(\''+e.weekend.id+'\','+e.id+')" style="font-size:11px;padding:3px 8px;background:#059669;color:#fff;border:none;border-radius:4px">Mark recorded</button>':"")+(canDel?'<button onclick="deleteExpense(\''+e.weekend.id+'\','+e.id+')" style="font-size:11px;padding:3px 8px;color:#dc2626;border-color:#fca5a5;background:#fff1f2;border-radius:4px">Delete</button>':"")+'</div></div></div>';}).join("");return'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px"><div><p style="font-size:14px;font-weight:600;color:#1e293b">Farm expense claims</p><p style="font-size:12px;color:#64748b;margin-top:2px">All expenses submitted by shareholders</p></div><div style="display:flex;gap:6px">'+fBtns+'</div></div><div class="summary-grid"><div class="summary-card" style="background:#fffbeb;border:1px solid #fcd34d"><p style="font-size:11px;color:#92400e">Pending claims</p><p style="font-size:20px;font-weight:600;color:#92400e;margin-top:4px">R '+pendingTotal.toFixed(2)+'</p></div><div class="summary-card" style="background:#f0fdf4;border:1px solid #86efac"><p style="font-size:11px;color:#166534">Showing total</p><p style="font-size:20px;font-weight:600;color:#166634;margin-top:4px">R '+total.toFixed(2)+'</p></div></div>'+rows;}
+function render(){if(showCover){renderCover();return;}const availList=ALL_WEEKENDS.filter(w=>getS(w.id).available&&w.date>=today);const mineList=currentUser?ALL_WEEKENDS.filter(w=>effOwner(w.id)===currentUser&&w.date>=today):[];const allExp=ALL_WEEKENDS.flatMap(w=>(getS(w.id).expenses||[]).map(e=>({...e,weekend:w})));const pendingExpCount=allExp.filter(e=>e.status==="pending").length;const forumPosts=STATE["__forum__"]||[];const filteredList=ALL_WEEKENDS.filter(w=>{if(w.date<today)return false;if(filterOwner!=="all"&&effOwner(w.id)!==filterOwner)return false;if(filterYear!=="all"&&!w.date.startsWith(filterYear))return false;return true;});const ownerObj=OWNERS.find(o=>o.id===currentUser);const pills=OWNERS.map(o=>'<button class="pill" onclick="handlePillClick(\''+o.id+'\')" style="background:'+(currentUser===o.id?o.color:"transparent")+';color:'+(currentUser===o.id?"#fff":"#64748b")+';border-color:'+(currentUser===o.id?o.color:"#cbd5e1")+'">'+o.name.split(" ")[0]+'</button>').join("");const userBar=currentUser?'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'+avatar(ownerObj.name,ownerObj.color,30)+'<span style="font-size:13px;font-weight:600">'+ownerObj.name+'</span>'+(currentUser===ADMIN_ID?'<button onclick="adminModal()" style="font-size:12px;padding:3px 8px;background:#fef3c7;color:#92400e;border:0.5px solid #fcd34d">Admin</button>':"")+'<button onclick="currentUser=null;showCover=true;renderCover()" style="font-size:12px;padding:3px 8px">Sign out</button></div>':"";function tabBtn(id,label){return'<button class="tab'+(currentTab===id?" active":"")+'" onclick="currentTab=\''+id+'\';render()">'+label+'</button>';}let tabContent="";if(currentTab==="all"){const yO=["2025","2026","2027","2028","2029","2030"].map(y=>'<option value="'+y+'"'+(filterYear===y?" selected":"")+'>'+y+'</option>').join("");const oO=OWNERS.map(o=>'<option value="'+o.id+'"'+(filterOwner===o.id?" selected":"")+'>'+o.name+'</option>').join("");tabContent='<div class="filters"><select onchange="filterOwner=this.value;render()"><option value="all">All owners</option>'+oO+'</select><select onchange="filterYear=this.value;render()"><option value="all">All years</option>'+yO+'</select><span style="font-size:12px;color:#64748b">'+filteredList.length+' weekends</span></div>'+filteredList.map(w=>weekendCard(w)).join("");}else if(currentTab==="mine"){tabContent=currentUser?mineList.length?mineList.map(w=>weekendCard(w)).join(""):emptyMsg("No upcoming weekends assigned to you."):emptyMsg("Tap your name above to sign in.");}else if(currentTab==="avail"){tabContent=availList.length?'<p style="font-size:13px;color:#64748b;margin-bottom:12px">Released weekends - sign in and claim one before someone else does!</p>'+availList.map(w=>weekendCard(w,true)).join(""):emptyMsg("No weekends available right now.");}else if(currentTab==="expenses"){tabContent=expensesTab(allExp);}else if(currentTab==="forum"){tabContent=forumTab(forumPosts);}else if(currentTab==="rules"){tabContent=rulesTab();}document.getElementById("app").innerHTML='<div class="header"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px;flex-wrap:wrap"><div><h1>&#127843; The Faithful Hound Trout Farm</h1><div class="header-sub"><span>Weekend allocation 2025-2030</span><span class="live '+(syncing?"saving":"ok")+'">'+(syncing?"Saving...":lastSync?"Live":"")+'</span></div></div>'+userBar+'</div><div class="owner-pills">'+pills+'</div><div class="tabs">'+tabBtn("all","All weekends")+tabBtn("mine","My weekends"+(currentUser?" ("+mineList.length+")":""))+tabBtn("avail","Available"+(availList.length>0?" - "+availList.length:""))+tabBtn("expenses","Expenses"+(pendingExpCount>0?" - "+pendingExpCount:""))+tabBtn("forum","Forum")+tabBtn("rules","Rules")+'</div></div><div class="content">'+tabContent+'</div>';}
 renderCover();
 </script>
 </body>
