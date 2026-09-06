@@ -446,7 +446,97 @@ function rulesTab(){
   +'</div>';
 }
 
-function render(){if(showCover){renderCover();return;}const availList=ALL_WEEKENDS.filter(w=>getS(w.id).available&&w.date>=today);const mineList=currentUser?ALL_WEEKENDS.filter(w=>effOwner(w.id)===currentUser&&w.date>=today):[];const allExp=ALL_WEEKENDS.flatMap(w=>(getS(w.id).expenses||[]).map(e=>({...e,weekend:w})));const pendingExpCount=allExp.filter(e=>e.status==="pending").length;const forumPosts=STATE["__forum__"]||[];const filteredList=ALL_WEEKENDS.filter(w=>{if(w.date<today)return false;if(filterOwner!=="all"&&effOwner(w.id)!==filterOwner)return false;if(filterYear!=="all"&&!w.date.startsWith(filterYear))return false;return true;});const ownerObj=OWNERS.find(o=>o.id===currentUser);const pills=OWNERS.map(o=>'<button class="pill" onclick="handlePillClick(\''+o.id+'\')" style="background:'+(currentUser===o.id?o.color:"transparent")+';color:'+(currentUser===o.id?"#fff":"#64748b")+';border-color:'+(currentUser===o.id?o.color:"#cbd5e1")+'">'+o.name.split(" ")[0]+'</button>').join("");const userBar=currentUser?'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'+avatar(ownerObj.name,ownerObj.color,30)+'<span style="font-size:13px;font-weight:600">'+ownerObj.name+'</span>'+(currentUser===ADMIN_ID?'<button onclick="adminModal()" style="font-size:12px;padding:3px 8px;background:#fef3c7;color:#92400e;border:0.5px solid #fcd34d">Admin</button>':"")+'<button onclick="currentUser=null;showCover=true;renderCover()" style="font-size:12px;padding:3px 8px">Sign out</button></div>':"";function tabBtn(id,label){return'<button class="tab'+(currentTab===id?" active":"")+'" onclick="currentTab=\''+id+'\';render()">'+label+'</button>';}let tabContent="";if(currentTab==="all"){const yO=["2025","2026","2027","2028","2029","2030"].map(y=>'<option value="'+y+'"'+(filterYear===y?" selected":"")+'>'+y+'</option>').join("");const oO=OWNERS.map(o=>'<option value="'+o.id+'"'+(filterOwner===o.id?" selected":"")+'>'+o.name+'</option>').join("");tabContent='<div class="filters"><select onchange="filterOwner=this.value;render()"><option value="all">All owners</option>'+oO+'</select><select onchange="filterYear=this.value;render()"><option value="all">All years</option>'+yO+'</select><span style="font-size:12px;color:#64748b">'+filteredList.length+' weekends</span></div>'+filteredList.map(w=>weekendCard(w)).join("");}else if(currentTab==="mine"){tabContent=currentUser?mineList.length?mineList.map(w=>weekendCard(w)).join(""):emptyMsg("No upcoming weekends assigned to you."):emptyMsg("Tap your name above to sign in.");}else if(currentTab==="avail"){tabContent=availList.length?'<div style="background:#EFF6FF;border:1px solid #BFDBFE;padding:10px 14px;margin-bottom:14px"><p style="font-size:13px;font-weight:600;color:#1e40af;margin-bottom:2px">First come, first served</p><p style="font-size:12px;color:#3b82f6;line-height:1.5">Push notifications are sent to everyone when a weekend is released. Sign in and claim it before someone else does.</p></div>'+availList.map(w=>weekendCard(w,true)).join(""):emptyMsg("No weekends available right now.");}else if(currentTab==="expenses"){tabContent=expensesTab(allExp);}else if(currentTab==="forum"){tabContent=forumTab(forumPosts);}else if(currentTab==="rules"){tabContent=rulesTab();}document.getElementById("app").innerHTML='<div class="header"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px;flex-wrap:wrap"><div><h1>&#x1F3A3; The Faithful Hound Trout Farm</h1><div class="header-sub"><span>Weekend allocation 2025-2030</span><span class="live '+(syncing?"saving":"ok")+'">'+(syncing?"Saving...":lastSync?"Live":"")+'</span></div></div>'+userBar+'</div><div class="owner-pills">'+pills+'</div><div class="tabs">'+tabBtn("all","All weekends")+tabBtn("mine","My weekends"+(currentUser?" ("+mineList.length+")":""))+tabBtn("avail","Available"+(availList.length>0?" - "+availList.length:""))+tabBtn("expenses","Expenses"+(pendingExpCount>0?" - "+pendingExpCount:""))+tabBtn("forum","Forum")+tabBtn("rules","Rules")+'</div></div><div class="content">'+tabContent+'</div>';}
+const MAINT_CATS=["Kitchen","Fishing","Entertainment","Vehicles","Gas & Fuel","Fencing","Stock","Labour","Other"];
+const KAREN={id:"karen-r",name:"Karen Robinson",color:"#0891B2",ini:"KR"};
+
+function mAvatar(person,sz){
+  sz=sz||28;
+  var o=person.id==="karen-r"?KAREN:OWNERS.find(function(x){return x.id===person.id;});
+  var color=o?o.color:"#888";
+  var ini=o?o.ini||o.name.split(" ").map(function(n){return n[0];}).join(""):"?";
+  return'<div style="width:'+sz+'px;height:'+sz+'px;background:'+color+';color:#fff;display:flex;align-items:center;justify-content:center;font-size:'+(sz<22?9:11)+'px;font-weight:700;flex-shrink:0">'+ini+'</div>';
+}
+
+function logMaintModal(){
+  if(!currentUser){showToast("Sign in first.","err");return;}
+  var catOpts=MAINT_CATS.map(function(c){return'<option>'+c+'</option>';}).join("");
+  var assignOpts=OWNERS.map(function(o){return'<option value="'+o.id+'">'+o.name+'</option>';}).join("")+'<option value="karen-r">Karen Robinson (Monthly orders)</option>';
+  openModal('<div class="modal wide"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><p style="font-weight:600;font-size:15px;color:#1e293b">Log maintenance issue</p><button onclick="closeModal()">Close</button></div><div style="display:flex;flex-direction:column;gap:10px"><div><label style="font-size:12px;color:#64748b;display:block;margin-bottom:4px">Category</label><select id="m-cat" style="width:100%">'+catOpts+'</select></div><div><label style="font-size:12px;color:#64748b;display:block;margin-bottom:4px">Description</label><textarea id="m-desc" rows="3" placeholder="e.g. Clutch handle broken on trail bike, Quad bike key lost..." style="width:100%;resize:none;font-size:13px;border:0.5px solid #cbd5e1;padding:8px;font-family:inherit"></textarea></div><div style="display:flex;gap:8px"><div style="flex:1"><label style="font-size:12px;color:#64748b;display:block;margin-bottom:4px">Priority</label><select id="m-pri" style="width:100%"><option value="urgent">🔴 Urgent</option><option value="normal" selected>🟡 Normal</option><option value="low">🟢 Low</option></select></div><div style="flex:1"><label style="font-size:12px;color:#64748b;display:block;margin-bottom:4px">Assign to</label><select id="m-assign" style="width:100%"><option value="">Unassigned</option>'+assignOpts+'</select></div></div><div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#EFF6FF;border:0.5px solid #BFDBFE"><input type="checkbox" id="m-monthly" style="width:16px;height:16px"><label for="m-monthly" style="font-size:13px;color:#1e40af;cursor:pointer">📦 Add to monthly order list (auto-assigns to Karen)</label></div><button onclick="saveMaintItem()" style="font-size:13px;padding:10px;background:#102D3A;color:#fff;border:none;font-weight:600;width:100%">Log issue</button></div></div>');
+  setTimeout(function(){var cb=document.getElementById("m-monthly");if(cb)cb.addEventListener("change",function(){if(this.checked)document.getElementById("m-assign").value="karen-r";});},50);
+}
+
+async function saveMaintItem(){
+  var cat=document.getElementById("m-cat").value;
+  var desc=document.getElementById("m-desc")?document.getElementById("m-desc").value.trim():"";
+  var pri=document.getElementById("m-pri").value;
+  var assign=document.getElementById("m-assign").value;
+  var monthly=document.getElementById("m-monthly")&&document.getElementById("m-monthly").checked;
+  if(!desc){showToast("Please add a description.","err");return;}
+  if(monthly)assign="karen-r";
+  var loggedByOwner=OWNERS.find(function(o){return o.id===currentUser;});
+  var item={id:Date.now(),cat:cat,desc:desc,priority:pri,assignedTo:assign,monthly:monthly,loggedBy:currentUser,date:new Date().toLocaleString("en-ZA",{day:"numeric",month:"short",year:"numeric"}),status:"open"};
+  var existing=STATE["__maint__"]||[];
+  STATE["__maint__"]=[...existing,item];
+  await stateRef.child("__maint__").set(STATE["__maint__"]);
+  closeModal();showToast("Issue logged!");
+  if(assign){var assignee=assign==="karen-r"?KAREN:OWNERS.find(function(o){return o.id===assign;});if(assignee&&loggedByOwner)sendPushNotification("🔧 Maintenance task assigned to you",cat+": "+desc+" — from "+loggedByOwner.name);}
+  currentTab="maintenance";render();
+}
+
+async function resolveMaint(id){STATE["__maint__"]=(STATE["__maint__"]||[]).map(function(m){return m.id===id?{...m,status:"resolved"}:m;});await stateRef.child("__maint__").set(STATE["__maint__"]);showToast("Marked as resolved ✓");render();}
+async function deleteMaint(id){STATE["__maint__"]=(STATE["__maint__"]||[]).filter(function(m){return m.id!==id;});await stateRef.child("__maint__").set(STATE["__maint__"]);render();}
+
+function maintenanceTab(items){
+  var filter=window._maintFilter||"open";
+  var filtered=filter==="all"?items:items.filter(function(m){return m.status===filter;});
+  var monthly=items.filter(function(m){return m.monthly&&m.status==="open";});
+  var openCount=items.filter(function(m){return m.status==="open";}).length;
+  var priC={urgent:"#FEE2E2",normal:"#FEF9C3",low:"#DCFCE7"};
+  var priT={urgent:"🔴 Urgent",normal:"🟡 Normal",low:"🟢 Low"};
+  var priB={urgent:"#FECACA",normal:"#FDE68A",low:"#86EFAC"};
+  var fBtns=["open","resolved","all"].map(function(f){return'<button onclick="window._maintFilter=\''+f+'\';render()" style="font-size:11px;padding:3px 10px;border-radius:20px;background:'+(filter===f?"#102D3A":"#f8fafc")+';color:'+(filter===f?"#fff":"#64748b")+';border-color:'+(filter===f?"#102D3A":"#cbd5e1")+'">'+(f==="open"?"Open ("+openCount+")":f.charAt(0).toUpperCase()+f.slice(1))+'</button>';}).join("");
+  var ms="";
+  if(monthly.length>0){
+    ms='<div style="background:#EFF6FF;border:1px solid #BFDBFE;padding:12px 14px;margin-bottom:14px">'
+      +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">'+mAvatar(KAREN,24)
+      +'<div><p style="font-size:13px;font-weight:600;color:#1e40af">Monthly order list</p><p style="font-size:11px;color:#3b82f6">Karen Robinson will organise</p></div></div>'
+      +monthly.map(function(m){return'<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:#fff;margin-bottom:5px;border:0.5px solid #BFDBFE"><span style="font-size:11px;background:#DBEAFE;color:#1e40af;padding:1px 7px">'+m.cat+'</span><span style="font-size:13px;color:#1e293b;flex:1">'+m.desc+'</span>'+(currentUser===ADMIN_ID?'<button onclick="resolveMaint('+m.id+')" style="font-size:10px;padding:2px 7px;background:#059669;color:#fff;border:none">Done</button>':'')+'</div>';}).join("")
+      +'</div>';
+  }
+  var cards=filtered.length===0?'<div style="text-align:center;padding:2rem;color:#94a3b8;font-size:13px">No '+filter+' issues.</div>'
+    :[...filtered].sort(function(a,b){var p={urgent:0,normal:1,low:2};return(p[a.priority]||1)-(p[b.priority]||1)||(b.id-a.id);}).map(function(m){
+      var lb=OWNERS.find(function(o){return o.id===m.loggedBy;});
+      var ae=m.assignedTo==="karen-r"?KAREN:(m.assignedTo?OWNERS.find(function(o){return o.id===m.assignedTo;}):null);
+      var canDel=m.loggedBy===currentUser||currentUser===ADMIN_ID;
+      return'<div style="background:'+(m.status==="resolved"?"#f0fdf4":"#fff")+';border:1px solid #e2e8f0;padding:10px 12px;margin-bottom:8px;border-left:3px solid '+(priB[m.priority]||"#e2e8f0")+'">'
+        +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">'
+        +'<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">'
+        +'<span style="font-size:11px;background:#f1f5f9;color:#475569;padding:2px 8px">'+m.cat+'</span>'
+        +'<span style="font-size:11px;background:'+priC[m.priority]+';padding:2px 8px">'+priT[m.priority]+'</span>'
+        +(m.monthly?'<span style="font-size:11px;background:#DBEAFE;color:#1e40af;padding:2px 8px">📦 Monthly</span>':"")
+        +(m.status==="resolved"?'<span style="font-size:11px;background:#DCFCE7;color:#166534;padding:2px 8px">✓ Resolved</span>':"")
+        +'</div><span style="font-size:10px;color:#94a3b8">'+m.date+'</span></div>'
+        +'<p style="font-size:13px;color:#1e293b;margin-bottom:8px;line-height:1.5">'+m.desc+'</p>'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">'
+        +'<div style="display:flex;align-items:center;gap:6px">'
+        +(lb?mAvatar({id:lb.id,color:lb.color,ini:lb.name.split(" ").map(function(n){return n[0];}).join("")},20)+'<span style="font-size:11px;color:#64748b">'+lb.name+'</span>':"")
+        +(ae?'<span style="font-size:11px;color:#94a3b8">→</span>'+mAvatar(ae,20)+'<span style="font-size:11px;color:#2D6F7A;font-weight:500">'+ae.name+'</span>':"")
+        +'</div><div style="display:flex;gap:5px">'
+        +(m.status==="open"&&currentUser===ADMIN_ID?'<button onclick="resolveMaint('+m.id+')" style="font-size:10px;padding:2px 8px;background:#059669;color:#fff;border:none">Mark resolved</button>':"")
+        +(canDel&&m.status==="resolved"?'<button onclick="deleteMaint('+m.id+')" style="font-size:10px;padding:2px 8px;color:#dc2626;border-color:#fca5a5;background:#fff1f2">Delete</button>':"")
+        +'</div></div></div>';
+    }).join("");
+  return'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">'
+    +'<div><p style="font-size:14px;font-weight:600;color:#1e293b">Farm maintenance</p>'
+    +'<p style="font-size:12px;color:#64748b;margin-top:2px">Log issues, breakages and supply requests</p></div>'
+    +(currentUser?'<button onclick="logMaintModal()" style="font-size:12px;padding:6px 14px;background:#102D3A;color:#fff;border:none;font-weight:500">+ Log issue</button>':"")
+    +'</div><div style="display:flex;gap:5px;margin-bottom:12px">'+fBtns+'</div>'+ms+cards;
+}
+
+function render(){if(showCover){renderCover();return;}const availList=ALL_WEEKENDS.filter(w=>getS(w.id).available&&w.date>=today);const mineList=currentUser?ALL_WEEKENDS.filter(w=>effOwner(w.id)===currentUser&&w.date>=today):[];const allExp=ALL_WEEKENDS.flatMap(w=>(getS(w.id).expenses||[]).map(e=>({...e,weekend:w})));const pendingExpCount=allExp.filter(e=>e.status==="pending").length;const forumPosts=STATE["__forum__"]||[];
+  const maintItems=(STATE["__maint__"]||[]);
+  const pendingMaint=maintItems.filter(m=>m.status==="open").length;const filteredList=ALL_WEEKENDS.filter(w=>{if(w.date<today)return false;if(filterOwner!=="all"&&effOwner(w.id)!==filterOwner)return false;if(filterYear!=="all"&&!w.date.startsWith(filterYear))return false;return true;});const ownerObj=OWNERS.find(o=>o.id===currentUser);const pills=OWNERS.map(o=>'<button class="pill" onclick="handlePillClick(\''+o.id+'\')" style="background:'+(currentUser===o.id?o.color:"transparent")+';color:'+(currentUser===o.id?"#fff":"#64748b")+';border-color:'+(currentUser===o.id?o.color:"#cbd5e1")+'">'+o.name.split(" ")[0]+'</button>').join("");const userBar=currentUser?'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'+avatar(ownerObj.name,ownerObj.color,30)+'<span style="font-size:13px;font-weight:600">'+ownerObj.name+'</span>'+(currentUser===ADMIN_ID?'<button onclick="adminModal()" style="font-size:12px;padding:3px 8px;background:#fef3c7;color:#92400e;border:0.5px solid #fcd34d">Admin</button>':"")+'<button onclick="currentUser=null;showCover=true;renderCover()" style="font-size:12px;padding:3px 8px">Sign out</button></div>':"";function tabBtn(id,label){return'<button class="tab'+(currentTab===id?" active":"")+'" onclick="currentTab=\''+id+'\';render()">'+label+'</button>';}let tabContent="";if(currentTab==="all"){const yO=["2025","2026","2027","2028","2029","2030"].map(y=>'<option value="'+y+'"'+(filterYear===y?" selected":"")+'>'+y+'</option>').join("");const oO=OWNERS.map(o=>'<option value="'+o.id+'"'+(filterOwner===o.id?" selected":"")+'>'+o.name+'</option>').join("");tabContent='<div class="filters"><select onchange="filterOwner=this.value;render()"><option value="all">All owners</option>'+oO+'</select><select onchange="filterYear=this.value;render()"><option value="all">All years</option>'+yO+'</select><span style="font-size:12px;color:#64748b">'+filteredList.length+' weekends</span></div>'+filteredList.map(w=>weekendCard(w)).join("");}else if(currentTab==="mine"){tabContent=currentUser?mineList.length?mineList.map(w=>weekendCard(w)).join(""):emptyMsg("No upcoming weekends assigned to you."):emptyMsg("Tap your name above to sign in.");}else if(currentTab==="avail"){tabContent=availList.length?'<div style="background:#EFF6FF;border:1px solid #BFDBFE;padding:10px 14px;margin-bottom:14px"><p style="font-size:13px;font-weight:600;color:#1e40af;margin-bottom:2px">First come, first served</p><p style="font-size:12px;color:#3b82f6;line-height:1.5">Push notifications are sent to everyone when a weekend is released. Sign in and claim it before someone else does.</p></div>'+availList.map(w=>weekendCard(w,true)).join(""):emptyMsg("No weekends available right now.");}else if(currentTab==="expenses"){tabContent=expensesTab(allExp);}else if(currentTab==="forum"){tabContent=forumTab(forumPosts);}else if(currentTab==="rules"){tabContent=rulesTab();}
+  else if(currentTab==="maintenance"){tabContent=maintenanceTab(maintItems);}document.getElementById("app").innerHTML='<div class="header"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px;flex-wrap:wrap"><div><h1>&#x1F3A3; The Faithful Hound Trout Farm</h1><div class="header-sub"><span>Weekend allocation 2025-2030</span><span class="live '+(syncing?"saving":"ok")+'">'+(syncing?"Saving...":lastSync?"Live":"")+'</span></div></div>'+userBar+'</div><div class="owner-pills">'+pills+'</div><div class="tabs">'+tabBtn("all","All weekends")+tabBtn("mine","My weekends"+(currentUser?" ("+mineList.length+")":""))+tabBtn("avail","Available"+(availList.length>0?" - "+availList.length:""))+tabBtn("expenses","Expenses"+(pendingExpCount>0?" - "+pendingExpCount:""))+tabBtn("forum","Forum")+tabBtn("rules","Rules")+tabBtn("maintenance","Maintenance"+(pendingMaint>0?" · "+pendingMaint:""))+'</div></div><div class="content">'+tabContent+'</div>';}
 renderCover();
 
 </script>
