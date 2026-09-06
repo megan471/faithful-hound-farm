@@ -285,6 +285,66 @@ function calcTips(){
     +'<div style="display:flex;justify-content:space-between;border-top:1px solid #86efac;padding-top:8px;margin-top:2px"><span style="font-size:13px;font-weight:600;color:#166534">Total</span><span style="font-size:15px;font-weight:700;color:#166534">R '+total+'</span></div>'
     +'</div></div>';
 }
+function addExpenseModal(){
+  if(!currentUser){showToast("Sign in first.","err");return;}
+  var myWeekends=ALL_WEEKENDS.filter(function(w){return effOwner(w.id)===currentUser&&w.date>=today;});
+  var allUpcoming=ALL_WEEKENDS.filter(function(w){return w.date>=today;});
+  var opts=allUpcoming.map(function(w){
+    var o=OWNERS.find(function(x){return x.id===effOwner(w.id);});
+    return'<option value="'+w.id+'">'+fmt(w.date)+(o?' — '+o.name:'')+'</option>';
+  }).join("");
+  openModal('<div class="modal wide">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">'
+    +'<p style="font-weight:600;font-size:15px;color:#1e293b">Add expense</p>'
+    +'<button onclick="closeModal()">Close</button></div>'
+    +'<div style="display:flex;flex-direction:column;gap:10px">'
+    +'<div><label style="font-size:12px;color:#64748b;display:block;margin-bottom:4px">Weekend</label>'
+    +'<select id="exp-wid" style="width:100%"><option value="">Select a weekend...</option>'+opts+'</select></div>'
+    +'<div style="display:flex;gap:8px">'
+    +'<div style="flex:1"><label style="font-size:12px;color:#64748b;display:block;margin-bottom:4px">Amount (R)</label>'
+    +'<input type="number" id="exp-amount2" min="0" step="0.01" placeholder="0.00" style="width:100%"/></div>'
+    +'<div style="flex:1"><label style="font-size:12px;color:#64748b;display:block;margin-bottom:4px">Category</label>'
+    +'<select id="exp-cat2" style="width:100%">'+CATS.map(function(c){return'<option value="'+c+'">'+c.charAt(0).toUpperCase()+c.slice(1)+'</option>';}).join("")+'</select></div>'
+    +'</div>'
+    +'<div><label style="font-size:12px;color:#64748b;display:block;margin-bottom:4px">Description</label>'
+    +'<input type="text" id="exp-desc2" placeholder="What was this expense for?" style="width:100%"/></div>'
+    +'<div class="slip-upload-area" id="slip-upload-area2" onclick="document.getElementById(\'slip-file-input2\').click()" style="border:1.5px dashed #cbd5e1;padding:12px;text-align:center;cursor:pointer;background:#f8fafc">'
+    +'<div style="font-size:22px;margin-bottom:4px">📷</div>'
+    +'<p style="font-size:12px;color:#64748b;margin:0">Tap to attach slip photo (optional)</p>'
+    +'</div>'
+    +'<input type="file" id="slip-file-input2" accept="image/*" capture="environment" style="display:none" onchange="handleSlipFile2(this)"/>'
+    +'<button onclick="postExpense2()" style="font-size:13px;padding:10px;background:#2D6F7A;color:#fff;border:none;font-weight:600;width:100%">Log expense</button>'
+    +'</div></div>');
+}
+function handleSlipFile2(input){
+  var file=input.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    _pendingSlip=ev.target.result;
+    var area=document.getElementById("slip-upload-area2");
+    if(area){
+      area.style.borderColor="#86efac";area.style.background="#f0fdf4";
+      area.innerHTML='<img src="'+_pendingSlip+'" style="max-height:80px;max-width:100%;display:block;margin:0 auto 4px"/><p style="font-size:11px;color:#059669;margin:0">Slip attached ✓</p>';
+      area.onclick=function(){document.getElementById("slip-file-input2").click();};
+    }
+  };
+  reader.readAsDataURL(file);
+}
+async function postExpense2(){
+  var wid=document.getElementById("exp-wid")?document.getElementById("exp-wid").value:"";
+  var amount=parseFloat(document.getElementById("exp-amount2")?document.getElementById("exp-amount2").value:"0");
+  var desc=document.getElementById("exp-desc2")?document.getElementById("exp-desc2").value.trim():"";
+  var cat=document.getElementById("exp-cat2")?document.getElementById("exp-cat2").value:"general";
+  if(!wid){showToast("Please select a weekend.","err");return;}
+  if(!amount||!desc){showToast("Please fill in amount and description.","err");return;}
+  await patchState(wid,{expenses:[...(getS(wid).expenses||[]),{id:Date.now(),submittedBy:currentUser,amount:amount,description:desc,category:cat,date:new Date().toLocaleString("en-ZA",{day:"numeric",month:"short",year:"numeric"}),status:"pending",slip:_pendingSlip||null}]});
+  _pendingSlip=null;
+  closeModal();
+  showToast("Expense logged!");
+  currentTab="expenses";
+  render();
+}
+
 function expensesTab(allExp){
   const filtered=expFilter==="all"?allExp:allExp.filter(e=>e.status===expFilter);
   const total=filtered.reduce((s,e)=>s+e.amount,0);
@@ -321,7 +381,9 @@ function expensesTab(allExp){
   return '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">'
     +'<div><p style="font-size:14px;font-weight:600;color:#1e293b">Farm expense claims</p>'
     +'<p style="font-size:12px;color:#64748b;margin-top:2px">All expenses submitted by shareholders</p></div>'
-    +'<div style="display:flex;gap:6px">'+fBtns+'</div></div>'
+    +'<div style="display:flex;gap:6px;align-items:center">'
+    +(currentUser?'<button onclick="addExpenseModal()" style="font-size:12px;padding:5px 12px;background:#2D6F7A;color:#fff;border:none;font-weight:500">+ Add expense</button>':'')
+    +fBtns+'</div></div>'
     +'<div class="summary-grid">'
     +'<div class="summary-card" style="background:#fffbeb;border:1px solid #fcd34d"><p style="font-size:11px;color:#92400e">Pending claims</p><p style="font-size:20px;font-weight:600;color:#92400e;margin-top:4px">R '+pendingTotal.toFixed(2)+'</p></div>'
     +'<div class="summary-card" style="background:#f0fdf4;border:1px solid #86efac"><p style="font-size:11px;color:#166534">Showing total</p><p style="font-size:20px;font-weight:600;color:#166534;margin-top:4px">R '+total.toFixed(2)+'</p></div>'
