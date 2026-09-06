@@ -2,20 +2,21 @@
   "name": "The Faithful Hound Trout Farm",
   "short_name": "Faithful Hound",
   "description": "Weekend allocation portal for The Faithful Hound Trout Farm",
-  "start_url": "/",
+  "start_url": "/faithful-hound-farm/",
+  "scope": "/faithful-hound-farm/",
   "display": "standalone",
-  "background_color": "#0f2027",
-  "theme_color": "#0f2027",
+  "background_color": "#102D3A",
+  "theme_color": "#102D3A",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "logo.png",
+      "src": "/faithful-hound-farm/logo.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "logo.png",
+      "src": "/faithful-hound-farm/logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
