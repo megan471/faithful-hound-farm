@@ -33,9 +33,10 @@ input:focus,select:focus,textarea:focus{border-color:#93c5fd;box-shadow:0 0 0 2p
 .header-sub{font-size:12px;color:#64748b;margin-top:2px;display:flex;align-items:center;gap:8px;}
 .owner-pills{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 12px;}
 .pill{font-size:12px;padding:4px 12px;border-radius:20px;cursor:pointer;border:0.5px solid #cbd5e1;}
-.tabs{display:flex;border-bottom:0.5px solid #e2e8f0;overflow-x:auto;}
-.tab{font-size:13px;padding:8px 12px;border:none;border-bottom:2px solid transparent;border-radius:0;background:transparent;white-space:nowrap;}
-.tab.active{border-bottom-color:#1e293b;font-weight:500;color:#1e293b;}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:8px 10px;background:#f1f5f9;border-bottom:1px solid #e2e8f0;}
+.tab{font-size:11px;padding:7px 4px;border:1px solid #e2e8f0;border-radius:0;background:#fff;white-space:nowrap;color:#64748b;cursor:pointer;text-align:center;font-weight:500;line-height:1.3;}
+.tab:hover{background:#E8F4F6;border-color:#B5D8DE;color:#2D6F7A;}
+.tab.active{background:#102D3A;color:#fff;border-color:#102D3A;font-weight:600;}
 .content{padding:1rem;}
 .card{background:#fff;border:0.5px solid #e2e8f0;border-radius:8px;padding:10px 14px;margin-bottom:8px;}
 .badge{font-size:11px;border-radius:10px;padding:1px 7px;display:inline-flex;align-items:center;}
@@ -461,10 +462,25 @@ function logMaintModal(){
   if(!currentUser){showToast("Sign in first.","err");return;}
   var catOpts=MAINT_CATS.map(function(c){return'<option>'+c+'</option>';}).join("");
   var assignOpts=OWNERS.map(function(o){return'<option value="'+o.id+'">'+o.name+'</option>';}).join("")+'<option value="karen-r">Karen Robinson (Monthly orders)</option>';
-  openModal('<div class="modal wide"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><p style="font-weight:600;font-size:15px;color:#1e293b">Log maintenance issue</p><button onclick="closeModal()">Close</button></div><div style="display:flex;flex-direction:column;gap:10px"><div><label style="font-size:12px;color:#64748b;display:block;margin-bottom:4px">Category</label><select id="m-cat" style="width:100%">'+catOpts+'</select></div><div><label style="font-size:12px;color:#64748b;display:block;margin-bottom:4px">Description</label><textarea id="m-desc" rows="3" placeholder="e.g. Clutch handle broken on trail bike, Quad bike key lost..." style="width:100%;resize:none;font-size:13px;border:0.5px solid #cbd5e1;padding:8px;font-family:inherit"></textarea></div><div style="display:flex;gap:8px"><div style="flex:1"><label style="font-size:12px;color:#64748b;display:block;margin-bottom:4px">Priority</label><select id="m-pri" style="width:100%"><option value="urgent">🔴 Urgent</option><option value="normal" selected>🟡 Normal</option><option value="low">🟢 Low</option></select></div><div style="flex:1"><label style="font-size:12px;color:#64748b;display:block;margin-bottom:4px">Assign to</label><select id="m-assign" style="width:100%"><option value="">Unassigned</option>'+assignOpts+'</select></div></div><div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#EFF6FF;border:0.5px solid #BFDBFE"><input type="checkbox" id="m-monthly" style="width:16px;height:16px"><label for="m-monthly" style="font-size:13px;color:#1e40af;cursor:pointer">📦 Add to monthly order list (auto-assigns to Karen)</label></div><button onclick="saveMaintItem()" style="font-size:13px;padding:10px;background:#102D3A;color:#fff;border:none;font-weight:600;width:100%">Log issue</button></div></div>');
+  openModal('<div class="modal wide"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><p style="font-weight:600;font-size:15px;color:#1e293b">Log maintenance issue</p><button onclick="closeModal()">Close</button></div><div style="display:flex;flex-direction:column;gap:10px"><div><label style="font-size:12px;color:#64748b;display:block;margin-bottom:4px">Category</label><select id="m-cat" style="width:100%">'+catOpts+'</select></div><div><label style="font-size:12px;color:#64748b;display:block;margin-bottom:4px">Description</label><textarea id="m-desc" rows="3" placeholder="e.g. Clutch handle broken on trail bike, Quad bike key lost..." style="width:100%;resize:none;font-size:13px;border:0.5px solid #cbd5e1;padding:8px;font-family:inherit"></textarea></div><div style="display:flex;gap:8px"><div style="flex:1"><label style="font-size:12px;color:#64748b;display:block;margin-bottom:4px">Priority</label><select id="m-pri" style="width:100%"><option value="urgent">🔴 Urgent</option><option value="normal" selected>🟡 Normal</option><option value="low">🟢 Low</option></select></div><div style="flex:1"><label style="font-size:12px;color:#64748b;display:block;margin-bottom:4px">Assign to</label><select id="m-assign" style="width:100%"><option value="">Unassigned</option>'+assignOpts+'</select></div></div><div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#EFF6FF;border:0.5px solid #BFDBFE"><input type="checkbox" id="m-monthly" style="width:16px;height:16px"><label for="m-monthly" style="font-size:13px;color:#1e40af;cursor:pointer">📦 Add to monthly order list (auto-assigns to Karen)</label></div><div id=\"maint-slip-area\" style=\"border:1.5px dashed #cbd5e1;padding:12px;text-align:center;cursor:pointer;background:#f8fafc;margin-bottom:6px\" onclick=\"handleMaintPhotoClick()\"><div style=\"font-size:20px;margin-bottom:3px\">\U0001f4f7</div><p style=\"font-size:12px;color:#64748b;margin:0\">Tap to attach a damage photo (optional)</p></div><input type=\"file\" id=\"maint-slip-input\" accept=\"image/*\" capture=\"environment\" style=\"display:none\" onchange=\"handleMaintPhoto(this)\"><button onclick="saveMaintItem()" style="font-size:13px;padding:10px;background:#102D3A;color:#fff;border:none;font-weight:600;width:100%">Log issue</button></div></div>');
   setTimeout(function(){var cb=document.getElementById("m-monthly");if(cb)cb.addEventListener("change",function(){if(this.checked)document.getElementById("m-assign").value="karen-r";});},50);
 }
 
+function handleMaintPhotoClick(){var el=document.getElementById("maint-slip-input");if(el)el.click();}
+function handleMaintPhoto(input){
+  var file=input.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    window._maintPhoto=ev.target.result;
+    var area=document.getElementById("maint-slip-area");
+    if(area){
+      area.style.borderColor="#86efac";area.style.background="#f0fdf4";
+      area.innerHTML='<img src="'+window._maintPhoto+'" style="max-height:80px;max-width:100%;display:block;margin:0 auto 4px"/><p style="font-size:11px;color:#059669;margin:0">Photo attached ✓ Tap to change</p>';
+      area.onclick=function(){document.getElementById("maint-slip-input").click();};
+    }
+  };
+  reader.readAsDataURL(file);
+}
 async function saveMaintItem(){
   var cat=document.getElementById("m-cat").value;
   var desc=document.getElementById("m-desc")?document.getElementById("m-desc").value.trim():"";
@@ -474,7 +490,7 @@ async function saveMaintItem(){
   if(!desc){showToast("Please add a description.","err");return;}
   if(monthly)assign="karen-r";
   var loggedByOwner=OWNERS.find(function(o){return o.id===currentUser;});
-  var item={id:Date.now(),cat:cat,desc:desc,priority:pri,assignedTo:assign,monthly:monthly,loggedBy:currentUser,date:new Date().toLocaleString("en-ZA",{day:"numeric",month:"short",year:"numeric"}),status:"open"};
+  var photo=window._maintPhoto||null;window._maintPhoto=null;var item={id:Date.now(),cat:cat,desc:desc,priority:pri,assignedTo:assign,monthly:monthly,loggedBy:currentUser,date:new Date().toLocaleString("en-ZA",{day:"numeric",month:"short",year:"numeric"}),status:"open",photo:photo};
   var existing=STATE["__maint__"]||[];
   STATE["__maint__"]=[...existing,item];
   await stateRef.child("__maint__").set(STATE["__maint__"]);
@@ -516,7 +532,7 @@ function maintenanceTab(items){
         +(m.monthly?'<span style="font-size:11px;background:#DBEAFE;color:#1e40af;padding:2px 8px">📦 Monthly</span>':"")
         +(m.status==="resolved"?'<span style="font-size:11px;background:#DCFCE7;color:#166534;padding:2px 8px">✓ Resolved</span>':"")
         +'</div><span style="font-size:10px;color:#94a3b8">'+m.date+'</span></div>'
-        +'<p style="font-size:13px;color:#1e293b;margin-bottom:8px;line-height:1.5">'+m.desc+'</p>'
+        +'<p style="font-size:13px;color:#1e293b;margin-bottom:8px;line-height:1.5">'+m.desc+'</p>'+(m.photo?'<div style="margin-bottom:8px"><img src="'+m.photo+'" onclick="openLightbox(this.src)" style="max-height:80px;max-width:120px;object-fit:cover;cursor:pointer;border:0.5px solid #e2e8f0"/></div>':"")+
         +'<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">'
         +'<div style="display:flex;align-items:center;gap:6px">'
         +(lb?mAvatar({id:lb.id,color:lb.color,ini:lb.name.split(" ").map(function(n){return n[0];}).join("")},20)+'<span style="font-size:11px;color:#64748b">'+lb.name+'</span>':"")
