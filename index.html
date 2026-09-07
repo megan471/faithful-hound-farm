@@ -539,6 +539,7 @@ function maintenanceTab(items){
         +(ae?'<span style="font-size:11px;color:#94a3b8">→</span>'+mAvatar(ae,20)+'<span style="font-size:11px;color:#2D6F7A;font-weight:500">'+ae.name+'</span>':"")
         +'</div><div style="display:flex;gap:5px">'
         +(m.status==="open"&&currentUser===ADMIN_ID?'<button onclick="resolveMaint('+m.id+')" style="font-size:10px;padding:2px 8px;background:#059669;color:#fff;border:none">Mark resolved</button>':"")
+        +(canDel?'<button onclick="editMaintModal('+m.id+')" style="font-size:10px;padding:2px 8px;background:#EFF6FF;color:#1e40af;border-color:#BFDBFE">Edit</button>':"")
         +(canDel&&m.status==="resolved"?'<button onclick="deleteMaint('+m.id+')" style="font-size:10px;padding:2px 8px;color:#dc2626;border-color:#fca5a5;background:#fff1f2">Delete</button>':"")
         +'</div></div></div>';
     }).join("");
@@ -549,10 +550,78 @@ function maintenanceTab(items){
     +'</div><div style="display:flex;gap:5px;margin-bottom:12px">'+fBtns+'</div>'+ms+cards;
 }
 
+function contactsTab(){
+  var contacts=[
+    {name:"Thomas",role:"Farm Manager",phone:"0727069781",emoji:"👨‍🌾",color:"#2D6F7A"},
+    {name:"Karen Robinson",role:"Monthly orders",phone:"",emoji:"📦",color:"#0891B2"},
+  ];
+  var cards=contacts.map(function(c){
+    return'<div style="background:#fff;border:1px solid #e2e8f0;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:14px">'
+      +'<div style="width:44px;height:44px;background:'+c.color+';color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">'+c.emoji+'</div>'
+      +'<div style="flex:1">'
+      +'<p style="font-size:14px;font-weight:600;color:#1e293b">'+c.name+'</p>'
+      +'<p style="font-size:12px;color:#64748b;margin-top:1px">'+c.role+'</p>'
+      +'</div>'
+      +(c.phone?'<a href="tel:'+c.phone+'" style="display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none;background:#E8F4F6;border:1px solid #B5D8DE;padding:8px 12px;color:#102D3A">'
+        +'<span style="font-size:18px">📞</span>'
+        +'<span style="font-size:10px;font-weight:600;color:#2D6F7A">Call</span>'
+        +'</a>'
+        +'<a href="https://wa.me/27'+c.phone.replace(/^0/,'')+'" target="_blank" style="display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none;background:#dcfce7;border:1px solid #86efac;padding:8px 12px;color:#166534;margin-left:6px">'
+        +'<span style="font-size:18px">💬</span>'
+        +'<span style="font-size:10px;font-weight:600;color:#166534">WhatsApp</span>'
+        +'</a>'
+      :'')
+      +'</div>';
+  }).join("");
+
+  var addSection=currentUser===ADMIN_ID
+    ?'<div style="background:#f8fafc;border:1px dashed #cbd5e1;padding:12px 14px;margin-bottom:16px;text-align:center">'
+      +'<p style="font-size:12px;color:#64748b">Contact list is managed by admin. Coming soon — add contacts from here.</p>'
+      +'</div>'
+    :"";
+
+  return'<div style="margin-bottom:14px">'
+    +'<p style="font-size:14px;font-weight:600;color:#1e293b;margin-bottom:3px">Farm contacts</p>'
+    +'<p style="font-size:12px;color:#64748b">Key people for the Faithful Hound farm</p>'
+    +'</div>'
+    +addSection
+    +cards
+    +'<div style="background:#fffbeb;border:1px solid #fde68a;padding:10px 14px;margin-top:8px">'
+    +'<p style="font-size:12px;color:#92400e">📍 <strong>The Faithful Hound Trout Farm</strong> — Dullstroom, Mpumalanga</p>'
+    +'<p style="font-size:11px;color:#92400e;margin-top:3px">For emergencies: contact the nearest shareholder or Thomas directly.</p>'
+    +'</div>';
+}
+
+function editMaintModal(id){
+  var m=(STATE["__maint__"]||[]).find(function(x){return x.id===id;});
+  if(!m){return;}
+  var catOpts=MAINT_CATS.map(function(c){return'<option value="'+c+'"'+(m.cat===c?' selected':'')+'>'+c+'</option>';}).join("");
+  var assignOpts='<option value="">Unassigned</option>'
+    +OWNERS.map(function(o){return'<option value="'+o.id+'"'+(m.assignedTo===o.id?' selected':'')+'>'+o.name+'</option>';}).join("")
+    +'<option value="karen-r"'+(m.assignedTo==="karen-r"?' selected':'')+'>Karen Robinson (Monthly orders)</option>';
+  openModal('<div class="modal wide"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><p style="font-weight:600;font-size:15px;color:#1e293b">Edit issue</p><button onclick="closeModal()">Close</button></div><div style="display:flex;flex-direction:column;gap:10px"><div><label style="font-size:12px;color:#64748b;display:block;margin-bottom:4px">Category</label><select id="em-cat" style="width:100%">'+catOpts+'</select></div><div><label style="font-size:12px;color:#64748b;display:block;margin-bottom:4px">Description</label><textarea id="em-desc" rows="3" style="width:100%;resize:none;font-size:13px;border:0.5px solid #cbd5e1;padding:8px;font-family:inherit">'+m.desc+'</textarea></div><div style="display:flex;gap:8px"><div style="flex:1"><label style="font-size:12px;color:#64748b;display:block;margin-bottom:4px">Priority</label><select id="em-pri" style="width:100%"><option value="urgent"'+(m.priority==="urgent"?" selected":"")+'>🔴 Urgent</option><option value="normal"'+(m.priority==="normal"?" selected":"")+'>🟡 Normal</option><option value="low"'+(m.priority==="low"?" selected":"")+'>🟢 Low</option></select></div><div style="flex:1"><label style="font-size:12px;color:#64748b;display:block;margin-bottom:4px">Assign to</label><select id="em-assign" style="width:100%">'+assignOpts+'</select></div></div><div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#EFF6FF;border:0.5px solid #BFDBFE"><input type="checkbox" id="em-monthly"'+(m.monthly?" checked":"")+' style="width:16px;height:16px"><label for="em-monthly" style="font-size:13px;color:#1e40af;cursor:pointer">📦 Monthly order list (Karen)</label></div><button onclick="saveEditMaint('+id+')" style="font-size:13px;padding:10px;background:#102D3A;color:#fff;border:none;font-weight:600;width:100%">Save changes</button></div></div>');
+  setTimeout(function(){var cb=document.getElementById("em-monthly");if(cb)cb.addEventListener("change",function(){if(this.checked)document.getElementById("em-assign").value="karen-r";});},50);
+}
+
+async function saveEditMaint(id){
+  var cat=document.getElementById("em-cat").value;
+  var desc=document.getElementById("em-desc")?document.getElementById("em-desc").value.trim():"";
+  var pri=document.getElementById("em-pri").value;
+  var assign=document.getElementById("em-assign").value;
+  var monthly=document.getElementById("em-monthly")&&document.getElementById("em-monthly").checked;
+  if(!desc){showToast("Please add a description.","err");return;}
+  if(monthly)assign="karen-r";
+  STATE["__maint__"]=(STATE["__maint__"]||[]).map(function(m){
+    return m.id===id?{...m,cat:cat,desc:desc,priority:pri,assignedTo:assign,monthly:monthly}:m;
+  });
+  await stateRef.child("__maint__").set(STATE["__maint__"]);
+  closeModal();showToast("Issue updated!");render();
+}
+
 function render(){if(showCover){renderCover();return;}const availList=ALL_WEEKENDS.filter(w=>getS(w.id).available&&w.date>=today);const mineList=currentUser?ALL_WEEKENDS.filter(w=>effOwner(w.id)===currentUser&&w.date>=today):[];const allExp=ALL_WEEKENDS.flatMap(w=>(getS(w.id).expenses||[]).map(e=>({...e,weekend:w})));const pendingExpCount=allExp.filter(e=>e.status==="pending").length;const forumPosts=STATE["__forum__"]||[];
   const maintItems=(STATE["__maint__"]||[]);
   const pendingMaint=maintItems.filter(m=>m.status==="open").length;const filteredList=ALL_WEEKENDS.filter(w=>{if(w.date<today)return false;if(filterOwner!=="all"&&effOwner(w.id)!==filterOwner)return false;if(filterYear!=="all"&&!w.date.startsWith(filterYear))return false;return true;});const ownerObj=OWNERS.find(o=>o.id===currentUser);const pills=OWNERS.map(o=>'<button class="pill" onclick="handlePillClick(\''+o.id+'\')" style="background:'+(currentUser===o.id?o.color:"transparent")+';color:'+(currentUser===o.id?"#fff":"#64748b")+';border-color:'+(currentUser===o.id?o.color:"#cbd5e1")+'">'+o.name.split(" ")[0]+'</button>').join("");const userBar=currentUser?'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'+avatar(ownerObj.name,ownerObj.color,30)+'<span style="font-size:13px;font-weight:600">'+ownerObj.name+'</span>'+(currentUser===ADMIN_ID?'<button onclick="adminModal()" style="font-size:12px;padding:3px 8px;background:#fef3c7;color:#92400e;border:0.5px solid #fcd34d">Admin</button>':"")+'<button onclick="currentUser=null;showCover=true;renderCover()" style="font-size:12px;padding:3px 8px">Sign out</button></div>':"";function tabBtn(id,label){return'<button class="tab'+(currentTab===id?" active":"")+'" onclick="currentTab=\''+id+'\';render()">'+label+'</button>';}let tabContent="";if(currentTab==="all"){const yO=["2025","2026","2027","2028","2029","2030"].map(y=>'<option value="'+y+'"'+(filterYear===y?" selected":"")+'>'+y+'</option>').join("");const oO=OWNERS.map(o=>'<option value="'+o.id+'"'+(filterOwner===o.id?" selected":"")+'>'+o.name+'</option>').join("");tabContent='<div class="filters"><select onchange="filterOwner=this.value;render()"><option value="all">All owners</option>'+oO+'</select><select onchange="filterYear=this.value;render()"><option value="all">All years</option>'+yO+'</select><span style="font-size:12px;color:#64748b">'+filteredList.length+' weekends</span></div>'+filteredList.map(w=>weekendCard(w)).join("");}else if(currentTab==="mine"){tabContent=currentUser?mineList.length?mineList.map(w=>weekendCard(w)).join(""):emptyMsg("No upcoming weekends assigned to you."):emptyMsg("Tap your name above to sign in.");}else if(currentTab==="avail"){tabContent=availList.length?'<div style="background:#EFF6FF;border:1px solid #BFDBFE;padding:10px 14px;margin-bottom:14px"><p style="font-size:13px;font-weight:600;color:#1e40af;margin-bottom:2px">First come, first served</p><p style="font-size:12px;color:#3b82f6;line-height:1.5">Push notifications are sent to everyone when a weekend is released. Sign in and claim it before someone else does.</p></div>'+availList.map(w=>weekendCard(w,true)).join(""):emptyMsg("No weekends available right now.");}else if(currentTab==="expenses"){tabContent=expensesTab(allExp);}else if(currentTab==="forum"){tabContent=forumTab(forumPosts);}else if(currentTab==="rules"){tabContent=rulesTab();}
-  else if(currentTab==="maintenance"){tabContent=maintenanceTab(maintItems);}document.getElementById("app").innerHTML='<div class="header"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px;flex-wrap:wrap"><div><h1>&#x1F3A3; The Faithful Hound Trout Farm</h1><div class="header-sub"><span>Weekend allocation 2025-2030</span><span class="live '+(syncing?"saving":"ok")+'">'+(syncing?"Saving...":lastSync?"Live":"")+'</span></div></div>'+userBar+'</div><div class="owner-pills">'+pills+'</div><div class="tabs">'+tabBtn("all","All weekends")+tabBtn("mine","My weekends"+(currentUser?" ("+mineList.length+")":""))+tabBtn("avail","Available"+(availList.length>0?" - "+availList.length:""))+tabBtn("expenses","Expenses"+(pendingExpCount>0?" - "+pendingExpCount:""))+tabBtn("forum","Forum")+tabBtn("rules","Rules")+tabBtn("maintenance","Maintenance"+(pendingMaint>0?" · "+pendingMaint:""))+'</div></div><div class="content">'+tabContent+'</div>';}
+  else if(currentTab==="maintenance"){tabContent=maintenanceTab(maintItems);}else if(currentTab==="contacts"){tabContent=contactsTab();}document.getElementById("app").innerHTML='<div class="header"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px;flex-wrap:wrap"><div><h1>&#x1F3A3; The Faithful Hound Trout Farm</h1><div class="header-sub"><span>Weekend allocation 2025-2030</span><span class="live '+(syncing?"saving":"ok")+'">'+(syncing?"Saving...":lastSync?"Live":"")+'</span></div></div>'+userBar+'</div><div class="owner-pills">'+pills+'</div><div class="tabs">'+tabBtn("all","All weekends")+tabBtn("mine","My weekends"+(currentUser?" ("+mineList.length+")":""))+tabBtn("avail","Available"+(availList.length>0?" - "+availList.length:""))+tabBtn("expenses","Expenses"+(pendingExpCount>0?" - "+pendingExpCount:""))+tabBtn("forum","Forum")+tabBtn("rules","Rules")+tabBtn("maintenance","Maintenance"+(pendingMaint>0?" · "+pendingMaint:""))+tabBtn("contacts","Contacts")+'</div></div><div class="content">'+tabContent+'</div>';}
 renderCover();
 
 </script>
