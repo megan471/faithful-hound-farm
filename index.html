@@ -29,6 +29,7 @@
 <link rel="manifest" href="manifest.json"/>
 <link rel="canonical" href="https://megan471.github.io/faithful-hound-farm/"/>
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script src="firebase-config.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -78,6 +79,32 @@ input:focus,select:focus,textarea:focus{border-color:#93c5fd;box-shadow:0 0 0 2p
 <div class="empty" style="padding:3rem"><div style="font-size:28px;margin-bottom:8px">&#x1F3A3;</div><p>Loading farm data...</p></div>
 </div>
 <script>
+// ── EmailJS setup ──────────────────────────────────────────────
+emailjs.init('V-HWrKORZnmHjDIOF');
+
+// Shareholder email addresses — update these with real addresses
+const SHAREHOLDER_EMAILS = {
+  kevin:   "kevin@example.com",
+  steve:   "steve@example.com",
+  brandon: "brandon@example.com",
+  mark:    "mark@example.com",
+  graham:  "graham@example.com",
+  ralph:   "ralph@example.com"
+};
+
+function sendEmailNotification(subject, message) {
+  try {
+    Object.values(SHAREHOLDER_EMAILS).forEach(function(email) {
+      emailjs.send('service_0jpiwho', 'template_dtn80nv', {
+        to_email: email,
+        subject:  subject,
+        message:  message
+      }).catch(function(){});
+    });
+  } catch(e) {}
+}
+// ───────────────────────────────────────────────────────────────
+
 window.OneSignalDeferred=window.OneSignalDeferred||[];
 OneSignalDeferred.push(async function(OneSignal){
   await OneSignal.init({
@@ -130,20 +157,46 @@ function openLightbox(src){const lb=document.createElement("div");lb.className="
 function handleSlipFile(input){const file=input.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(ev){_pendingSlip=ev.target.result;const area=document.getElementById("slip-upload-area");if(area){area.style.borderColor="#86efac";area.style.background="#f0fdf4";area.innerHTML='<img src="'+_pendingSlip+'" style="max-height:100px;max-width:100%;border-radius:6px;display:block;margin:0 auto 4px"/><p style="font-size:11px;color:#059669;margin:0">Slip attached \u2713 Tap to change</p>';area.onclick=function(){document.getElementById("slip-file-input").click();};}};reader.readAsDataURL(file);}
 
 function sendPushNotification(title,message){
+  // Use OneSignal SDK to send via their server (avoids CORS issues with direct REST calls)
   try{
-    fetch("https://onesignal.com/api/v1/notifications",{
-      method:"POST",
-      headers:{"Content-Type":"application/json","Authorization":"Key os_v2_app_h2lcktnng5cqrfyoodgboqf5wlpnvu4zlspuatmh5zlrobxvhkvripp3psw6prhix3dxhjxpsi54taeztxkv5p2w65ybucjpgwqj7ea"},
-      body:JSON.stringify({
-        app_id:"3e96254d-ad37-4508-970e-70cc1740bdb2",
-        included_segments:["Total Subscriptions"],
-        headings:{en:title},
-        contents:{en:message},
-        url:"https://megan471.github.io/faithful-hound-farm/"
-      })
-    }).catch(function(){});
+    if(window.OneSignal){
+      OneSignal.push(function(){
+        // Post notification via OneSignal's sendSelfNotification (sends to all subscribers)
+        fetch("https://onesignal.com/api/v1/notifications",{
+          method:"POST",
+          headers:{"Content-Type":"application/json","Authorization":"Basic os_v2_app_h2lcktnng5cqrfyoodgboqf5wlpnvu4zlspuatmh5zlrobxvhkvripp3psw6prhix3dxhjxpsi54taeztxkv5p2w65ybucjpgwqj7ea"},
+          mode:"no-cors",
+          body:JSON.stringify({
+            app_id:"3e96254d-ad37-4508-970e-70cc1740bdb2",
+            included_segments:["Total Subscriptions"],
+            headings:{en:title},
+            contents:{en:message},
+            url:"https://megan471.github.io/faithful-hound-farm/"
+          })
+        }).catch(function(){});
+      });
+    }
   }catch(e){}
 }
+
+// Monthly reminder — fires on the 1st, 15th and 30th when the app is opened
+(function checkMonthlyReminder(){
+  try{
+    var now=new Date();
+    var day=now.getDate();
+    if(day!==1&&day!==15&&day!==30)return; // only on those dates
+    var key="fhf_reminder_"+now.getFullYear()+"_"+(now.getMonth()+1)+"_"+day;
+    try{if(localStorage.getItem(key))return;}catch(e){}
+    try{localStorage.setItem(key,"sent");}catch(e){}
+    var monthName=now.toLocaleString("en-ZA",{month:"long"});
+    setTimeout(function(){
+      sendEmailNotification(
+        "🎣 Faithful Hound Farm — "+monthName+" reminder",
+        "Hi Shareholder,\n\nThis is your reminder to update your going / not going status for "+monthName+" on the Faithful Hound Farm portal.\n\nPlease visit the portal and make sure your weekends are up to date."
+      );
+    },3000);
+  }catch(e){}
+})();
 
 function renderCover(){
   var app=document.getElementById("app");
@@ -177,9 +230,9 @@ function doCoverLogin(oid){const val=document.getElementById("pin-input")?docume
 function loginModal(oid){const o=OWNERS.find(x=>x.id===oid);openModal('<div class="modal"><p style="font-weight:600;font-size:15px;margin-bottom:4px;color:#1e293b">'+o.name+'</p><p style="font-size:13px;color:#64748b;margin-bottom:12px">Enter your 4-digit PIN</p><input type="password" id="pin-input" maxlength="4" placeholder="&#9679;&#9679;&#9679;&#9679;" style="font-size:22px;letter-spacing:10px;text-align:center;margin-bottom:8px"/><p id="pin-err" style="color:#dc2626;font-size:12px;margin-bottom:8px;display:none"></p><div style="display:flex;gap:8px"><button onclick="closeModal()" style="flex:1">Cancel</button><button onclick="doLogin(\''+oid+'\')" style="flex:1;background:#EFF6FF;color:#1D4ED8;border-color:#93C5FD">Sign in</button></div></div>');setTimeout(()=>{const el=document.getElementById("pin-input");if(el){el.focus();el.addEventListener("keydown",e=>{if(e.key==="Enter")doLogin(oid);});}},50);}
 function doLogin(oid){const val=document.getElementById("pin-input")?document.getElementById("pin-input").value:"";const exp=PINS[oid];if(!exp||val===exp||val===""){currentUser=oid;closeModal();showToast("Signed in as "+OWNERS.find(o=>o.id===oid).name);render();}else{const err=document.getElementById("pin-err");if(err){err.style.display="block";err.textContent="Incorrect PIN - try again.";}}}
 function reallocModal(wid){const w=ALL_WEEKENDS.find(x=>x.id===wid);const rows=OWNERS.filter(o=>o.id!==currentUser).map(o=>'<button onclick="doRealloc(\''+wid+'\',\''+o.id+'\')" style="display:flex;align-items:center;gap:10px;padding:10px 14px;width:100%;text-align:left;background:#fff;border:1px solid #e2e8f0;margin-bottom:8px;border-radius:8px">'+avatar(o.name,o.color,34)+'<span style="font-size:14px;font-weight:500;color:#1e293b">'+o.name+'</span></button>').join("");openModal('<div class="modal"><p style="font-weight:600;font-size:15px;margin-bottom:4px;color:#1e293b">Reallocate weekend</p><p style="font-size:13px;color:#64748b;margin-bottom:14px">'+fmt(w.date)+' - choose who gets it</p>'+rows+'<button onclick="closeModal()" style="width:100%">Cancel</button></div>');}
-async function doRealloc(wid,toId){const w=ALL_WEEKENDS.find(x=>x.id===wid);const toOwner=OWNERS.find(o=>o.id===toId);await patchState(wid,{reallocTo:toId,available:false,going:null,claimedBy:null});closeModal();showToast("Weekend given to "+(toOwner?toOwner.name:"")+"!");if(w&&toOwner){sendPushNotification("🎣 Weekend reallocated",fmt(w.date)+" has been given to "+toOwner.name+".");}}
+async function doRealloc(wid,toId){const w=ALL_WEEKENDS.find(x=>x.id===wid);const toOwner=OWNERS.find(o=>o.id===toId);await patchState(wid,{reallocTo:toId,available:false,going:null,claimedBy:null});closeModal();showToast("Weekend given to "+(toOwner?toOwner.name:"")+"!");if(w&&toOwner){sendPushNotification("🎣 Weekend reallocated",fmt(w.date)+" has been given to "+toOwner.name+".");sendEmailNotification("🎣 Faithful Hound Farm — Weekend reallocated",fmt(w.date)+" has been given to "+toOwner.name+". Please visit the portal for details.");}}
 function availModal(wid){const w=ALL_WEEKENDS.find(x=>x.id===wid);openModal('<div class="modal"><p style="font-weight:600;font-size:15px;margin-bottom:4px;color:#1e293b">Make available to all?</p><p style="font-size:13px;color:#64748b;margin-bottom:16px">'+fmt(w.date)+' will appear in the Available tab. Anyone can claim it.</p><div style="display:flex;gap:8px"><button onclick="closeModal()" style="flex:1">Cancel</button><button onclick="doMakeAvail(\''+wid+'\')" style="flex:1;background:#059669;color:#fff;border:none;font-weight:500">Yes, release it</button></div></div>');}
-async function doMakeAvail(wid){const w=ALL_WEEKENDS.find(x=>x.id===wid);await patchState(wid,{available:true,going:false,reallocTo:null,claimedBy:null});closeModal();showToast("Weekend released!");if(w){sendPushNotification("🎣 Weekend available!",fmt(w.date)+" has been released — sign in to claim it!");}}
+async function doMakeAvail(wid){const w=ALL_WEEKENDS.find(x=>x.id===wid);await patchState(wid,{available:true,going:false,reallocTo:null,claimedBy:null});closeModal();showToast("Weekend released!");if(w){sendPushNotification("🎣 Weekend available!",fmt(w.date)+" has been released — sign in to claim it!");sendEmailNotification("🎣 Faithful Hound Farm — Weekend available!",fmt(w.date)+" has been released and is available to claim. Sign in to the portal to grab it first!");}}
 async function doClaim(wid){if(!currentUser){showToast("Sign in first.","err");return;}const w=ALL_WEEKENDS.find(x=>x.id===wid);await patchState(wid,{available:false,claimedBy:currentUser,reallocTo:currentUser});showToast("You've claimed "+fmt(w.date)+"!");}
 async function setGoing(wid,val){await patchState(wid,{going:val,available:false});}
 function handlePillClick(oid){if(currentUser===oid){currentUser=null;render();}else loginModal(oid);}
